@@ -14,7 +14,7 @@ namespace LoadConsentToGo
         public string FirstName { get; internal set; }
         public string LastName { get; internal set; }
         public string PhoneNumber { get; internal set; }
-        public string InstanceLookup { get; internal set; }
+        //public string InstanceLookup { get; internal set; }
         public string Title { get; internal set; }
         public string DateofBirth { get; internal set; }
         public string Gender { get; internal set; }

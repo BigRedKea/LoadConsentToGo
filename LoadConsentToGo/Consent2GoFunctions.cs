@@ -37,6 +37,12 @@ namespace LoadConsentToGo
 
         public void Process(SMSData smsdata, List<GroupLookupData> GroupLookup)
         {
+            if (string.IsNullOrEmpty (smsdata.SiteUniqueIdentifier))
+                            {
+                Console.WriteLine($"No unique identifier found ");
+                return;
+            }
+
             var lookup = GroupLookup.Where(x => x.SMSOrgId == smsdata.SiteUniqueIdentifier).FirstOrDefault();
 
             if (lookup == null)
@@ -50,6 +56,7 @@ namespace LoadConsentToGo
             // Navigate to the organisation page
             var url = ($"https://www.mcbschools.com/DuplicateIndex?Id={lookup.Consent2GoOrgId}");
             driver.Navigate().GoToUrl(url);
+            Thread.Sleep(2000);
 
             if (CheckExists(smsdata, lookup))
             {
