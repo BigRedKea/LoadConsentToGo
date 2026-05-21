@@ -1,0 +1,250 @@
+UniqueID	SiteName1
+10318	2nd Nambour
+10344	2nd Toowoomba
+10420	Albany Creek
+10108	Algester
+102	Archer
+10042	Ashmore
+10046	Aspley
+10066	Atherton
+601	Atkinson
+10034	Baddow
+10485	Bald Hills
+10056	Banksia
+10110	Bardon
+301	Bartle Frere
+10467	Bauple
+10606	Bayside Sea
+10067	Bayview
+401	Beauaraba
+10478	Beaudesert
+1601	Beaver Masters
+10048	Beenleigh
+10120	Belgian Gardens
+10107	Belmont
+10036	Biloela
+10426	Birkdale
+10623	Blackwater
+10176	Bluewater
+10118	Boonah
+10158	Boondall
+10040	Boyne Tannum
+10216	Bracken Ridge
+212	Bramble Bay
+10087	Bribie Island
+102640	Brisbane First Chinese
+102817	Brisbane
+102576	Brisbane North
+103003	Brisbane South Chinese
+102594	Brisbane South
+103175	Broadwater
+10223	Browns Plains
+102231	Brownsea
+103136	Buddha's Light
+10096	Buderim
+1704	Bundaberg
+1604	Bunya
+10063	Bunya Park
+10043	Burleigh Heads
+10054	Burpengary
+10142	Caboolture
+10097	Calliope
+10151	Caloundra
+10117	Camira
+10099	Canungra
+10458	Capalaba
+102969	Capella
+103126	Capricorn
+10037	Centenary-Gympie
+103008	Central and Western Queensland
+103059	Central Coast
+103118	Central West
+202	Charles S Snow
+10170	Charleville
+10175	Charters Towers
+10649	Chermside Burul
+10144	Childers
+10624	Chinchilla
+10491	Cleveland
+10106	Clifton Hill
+10064	Clifton
+10053	Clontarf Beach
+103117	Coalfields
+10154	Coomera
+10149	Cooroy
+103173	Coral Coast
+102485	Craignish
+10495	Crows Nest
+402	Cunningham
+1605	DAguilar Range
+10639	Dalby-Yumborra
+400	Darling Downs
+103257	Darling Downs Revue
+10328	Dayboro
+10112	Deception Bay
+103119	Diamantina
+10210	Dolphin Sea
+10570	Drayton
+403	Eastern Downs
+10180	Edge Hill
+10237	Edmonton
+101796	Ekibin
+10633	Emerald
+10111	Enoggera
+10061	Esk
+10167	Everton Park
+102367	Far North
+602	Flinders
+103285	Formosa
+102942	Fort Lytton
+1702	Fraser
+10346	Freshwater
+10119	Gatton
+10350	Glenore Grove
+102525	Gold Coast
+10289	Goodna
+10181	Goondi
+10340	Goondiwindi
+10648	Gordon Park
+10390	Gordonvale
+10364	Gracemere
+10221	Greenbank
+10286	Grovely-Mitchelton
+1603	Gympie
+10269	Helensvale
+10260	Hervey Bay Sea
+103125	Hibiscus Coast
+10535	Highfields
+10051	Indooroopilly
+10281	Jimboomba
+10220	Jindalee
+107	John Oxley
+10113	Kallangur
+10290	Karalee
+10509	Karana
+10265	Kawana
+10229	Kedron
+10109	Kenmore
+102495	Kennedy
+102918	Kepnock
+10031	Kingaroy
+10388	Kirwan
+102616	Kurilpa
+10322	Labrador
+103174	Lamington
+102900	Landsborough
+10168	Lawnton
+603	Limestone
+102678	Loam Island
+115	Logan
+10334	Logan Village
+10446	Longreach
+102679	Lower Burdekin
+10231	Lowood
+102562	Mackay City Central
+10219	Manly-Lota
+103120	Maranoa
+10477	Mareeba
+10218	Marsden
+10363	Maryborough West
+10470	McDowall-Bunya
+10362	Millbank
+10122	Millmerran
+102569	Mission Beach
+10284	Moggill
+10408	Moonaboola Sea
+103115	Moore Park Beach
+10640	Moranbah
+10257	Morayfield
+600	Moreton
+10512	Morningside
+102168	Mount Archer
+10532	Mount Bruce
+10613	Mount Cotton
+103150	Mount Elliot
+103292	Mount Gravatt South
+102466	Mount Isa
+103148	Mount Spec
+103149	Mount Stuart
+10213	Mudgeeraba
+204	Murrumba
+103167	Muslim Crescent
+1602	Nambour
+10375	Narangba
+10263	Nashville
+10370	Nerang
+10182	Noosa Sea
+10431	North Ipswich
+10567	Northern Beaches
+103074	Northern Moreton Bay
+10650	Nundah-Northgate
+103070	Nursery Road School
+10553	Oakey
+10226	Oakleigh
+103087	Ormeau
+10339	Oyster Point
+10270	Palm Beach
+10480	Palmwoods
+103030	Pamphlett-Tennyson Sea
+102193	Paradise Point
+10538	Parkwood Heights
+10444	Pialba
+10565	Pimlico Mundingburra
+10236	Pittsworth
+103127	Port Curtis
+102368	Priestdale
+10341	Queens Park Ipswich
+1	Queensland Branch
+10387	Raceview
+10293	Rangeville
+10430	Redbank Plains
+102945	Redlands
+102570	Redlands Revue
+102889	Richlands-Forest Lake
+103249	Ripley
+10531	Rochedale
+10593	Rockville
+10533	Roma
+10463	Rosewood
+10428	Samford
+10373	Sandgate
+10461	Sarina
+10045	Scoutreach
+10456	Shailer Park
+10550	Sherwood
+207	Sir Leslie Wilson
+103225	Springfield
+10600	St Anthonys
+10285	St Johns Wood
+10374	Stafford
+10275	Stanthorpe
+103206	State Office
+1600	Suncoast
+10422	Sunnybank
+303	Tablelands
+103056	Tamborine Mountain
+10503	Taringa Milton Toowong
+10278	Tarragindi
+208	Taylor Range
+10383	The Gap
+102943	Toohey Forest
+209	Tyakunda
+10331	Underwood
+10376	Victor
+10530	Victoria Point
+10460	Wahminda Park
+10524	Warripari
+103182	Warwick
+102545	West Centenary
+103323	Whitsunday
+1700	Wide Bay-Burnett
+10454	Wilston
+10614	Withcott
+102805	Wonargo Revue
+10312	Woodford
+10510	Woodridge
+102638	Woogaroo
+10525	Woombye
+103176	Wyaralong
+10277	Wynnum
+10542	Yeppoon
