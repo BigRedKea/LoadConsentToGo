@@ -13,4 +13,13 @@
     <PackageReference Include="Selenium.WebDriver" Version="4.43.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="GroupLookup.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Secrets.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

@@ -13,6 +13,7 @@ namespace LoadConsentToGo
         {
             var smsDataList = new List<SMSData>();
 
+
             // Load SMS CSV data
             var csvData = File.ReadAllLines(filePath);
             var i = 0;

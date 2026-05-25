@@ -3,6 +3,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
 using System.Security.Policy;
+using System.Windows.Forms;
 using static System.Windows.Forms.AxHost;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
@@ -15,7 +16,7 @@ namespace LoadConsentToGo
             InitializeComponent();
 
             // open secrets.json and read the username and password
-            var filename = "C:\\Users\\chris\\source\\repos\\LoadConsentToGo\\LoadConsentToGo\\secrets.json";
+            var filename = "secrets.json";
             var jsonData = File.ReadAllText(filename);
 
             var config = JsonConvert.DeserializeObject<ConfigData>(jsonData);
@@ -25,13 +26,30 @@ namespace LoadConsentToGo
                 return;
             }
 
-            var smsdata = LoadSMSData.Load("C:\\temp\\C2G_Student_Upload_Master.csv");
+            FileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "CSV Files | *.csv",
+                CheckFileExists = true,
+                CheckPathExists = true,
+                InitialDirectory = "C:\\temp\\"
+            };
+            openFileDialog.ShowDialog();
+
+
+
+            if (openFileDialog.FileName == "" )
+            {
+                MessageBox.Show("No file selected", "Error", MessageBoxButtons.OK);
+                return;
+            }
+
+            var smsdata = LoadSMSData.Load(openFileDialog.FileName);
             var c = new Consent2GoFunctions();
 
             c.Open();
             c.Login(config.Consent2GoUsername, config.Consent2GoPassword);
 
-            var lookup = GroupLookupLoadData.Load("C:\\Users\\chris\\source\\repos\\LoadConsentToGo\\LoadConsentToGo\\GroupLookup.json");
+            var lookup = GroupLookupLoadData.Load("GroupLookup.json");
 
             foreach (var item in smsdata)
             {
