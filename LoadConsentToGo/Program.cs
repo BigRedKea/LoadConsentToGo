@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using OpenQA.Selenium.DevTools.V145.Page;
 
 namespace LoadConsentToGo
 {
@@ -54,9 +55,11 @@ namespace LoadConsentToGo
             c.Login(config.Consent2GoUsername, config.Consent2GoPassword);
 
             var lookup = GroupLookupLoadData.Load("GroupLookup.json");
-
+            var cnt = 0;
             foreach (var item in smsdata)
             {
+                cnt++;
+                Console.WriteLine($"Processing {cnt}/ {smsdata.Count} {item}");
                 c.Process(item, lookup);
             }
 

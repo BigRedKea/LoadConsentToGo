@@ -51,6 +51,8 @@ namespace LoadConsentToGo
                 return;
             }
 
+            emailcounter++;
+
             //MessageBox.Show($"Processing {smsdata.FirstName} {smsdata.LastName} for {lookup.FormationName}","Info",MessageBoxButtons.OK);
 
             // Navigate to the organisation page
@@ -77,7 +79,7 @@ namespace LoadConsentToGo
             
 
             // bug with Consent2go... won't allow multiple emails with the same address to the same site
-            emailcounter++;
+            
             var email = smsdata.Email;
             switch (emailcounter % 4)
             {
@@ -128,6 +130,8 @@ namespace LoadConsentToGo
             if (commit == DialogResult.Yes)
             {
                 driver.FindElement(By.Id("btnSave")).Click();
+
+                Console.Write("Member Committed");
             }
 
             
