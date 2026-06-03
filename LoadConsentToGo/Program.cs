@@ -55,12 +55,15 @@ namespace LoadConsentToGo
             c.Login(config.Consent2GoUsername, config.Consent2GoPassword);
 
             var lookup = GroupLookupLoadData.Load("GroupLookup.json");
+
+            GroupLookupLoadData.WriteToCSV(lookup, @"C:\temp\consent2golookup.csv");
+
             var cnt = 0;
-            foreach (var item in smsdata)
+            foreach (var item in smsdata.OrderBy(x=> x.LastName))
             {
                 cnt++;
                 Console.WriteLine($"Processing {cnt}/ {smsdata.Count} {item}");
-                c.Process(item, lookup);
+                c.Process(item, lookup, cnt);
             }
 
             MessageBox.Show("Finished", "Finished", MessageBoxButtons.OK);

@@ -35,7 +35,7 @@ namespace LoadConsentToGo
 
         }
 
-        public void Process(SMSData smsdata, List<GroupLookupData> GroupLookup)
+        public void Process(SMSData smsdata, List<GroupLookupData> GroupLookup, int cnt)
         {
             if (string.IsNullOrEmpty (smsdata.SiteUniqueIdentifier))
                             {
@@ -60,7 +60,7 @@ namespace LoadConsentToGo
             driver.Navigate().GoToUrl(url);
             Thread.Sleep(2000);
 
-            if (CheckExists(smsdata, lookup))
+            if (CheckExists(smsdata, lookup, cnt))
             {
                 return;
             }
@@ -81,22 +81,58 @@ namespace LoadConsentToGo
             // bug with Consent2go... won't allow multiple emails with the same address to the same site
             
             var email = smsdata.Email;
-            switch (emailcounter % 4)
+            switch (emailcounter % 16)
             {
                 case 0:
-                    email = "noemails@mcbschools.au";
+                    email = "noemails@mcbschools.a";
                     break;
                 case 1:
-                    email = "noemails@mcbschools.com.au";
+                    email = "noemails@mcbschools.b";
                     break;
                 case 2:
-                    email = "noemails@mcbschools.jp";
+                    email = "noemails@mcbschools.c";
                     break;
                 case 3:
-                    email = "noemails@mcbschools.fr";
+                    email = "noemails@mcbschools.d";
+                    break;
+                case 4:
+                    email = "noemails@mcbschools.e";
+                    break;
+                case 5:
+                    email = "noemails@mcbschools.f";
+                    break;
+                case 6:
+                    email = "noemails@mcbschools.g";
+                    break;
+                case 7:
+                    email = "noemails@mcbschools.h";
+                    break;
+                case 8:
+                    email = "noemails@mcbschools.i";
+                    break;
+                case 9:
+                    email = "noemails@mcbschools.j";
+                    break;
+                case 10:
+                    email = "noemails@mcbschools.k";
+                    break;
+                case 11:
+                    email = "noemails@mcbschools.l";
+                    break;
+                case 12:
+                    email = "noemails@mcbschools.n";
+                    break;
+                case 13:
+                    email = "noemails@mcbschools.n";
+                    break;
+                case 14:
+                    email = "noemails@mcbschools.p";
+                    break;
+                case 15:
+                    email = "noemails@mcbschools.p";
                     break;
                 default:
-                    email = "noemails@mcbschools.net";
+                    email = "noemails@mcbschools.e";
                     break;
             }
 
@@ -156,7 +192,7 @@ namespace LoadConsentToGo
             //click on id = ddlSchoolYear
         }
 
-        public bool CheckExists(SMSData smsdata, GroupLookupData lookup)
+        public bool CheckExists(SMSData smsdata, GroupLookupData lookup, int cnt)
         {
             //Search for the student by last name
             driver.Navigate().GoToUrl("https://www.mcbschools.com/School/Player");
@@ -170,7 +206,7 @@ namespace LoadConsentToGo
             IJavaScriptExecutor executor = (IJavaScriptExecutor)driver;
             executor.ExecuteScript("arguments[0].click();", searchicon);
 
-            var alreadyexists = MessageBox.Show($"Does {smsdata.FirstName} {smsdata.LastName} of {lookup.FormationName} already exist?", "Exists?", MessageBoxButtons.YesNo);
+            var alreadyexists = MessageBox.Show($"{cnt} Does {smsdata.FirstName} {smsdata.LastName} of {lookup.FormationName} already exist?", "Exists?", MessageBoxButtons.YesNo);
             return (alreadyexists == DialogResult.Yes);
 
         }
