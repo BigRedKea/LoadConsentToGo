@@ -15,9 +15,12 @@ namespace LoadConsentToGo
         IWebDriver driver = new ChromeDriver();
         public int emailcounter = 0;
 
-        public static string consent2gopath = @"C:\Consent2Go";
+        public static string profilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).ToString();
 
-        private string LogFilePath = Path.Combine(consent2gopath, $"consent2golog{DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss")}.log");
+        //public static string consent2gopath = @"C:\Consent2Go";
+        public static string consent2gopath = Path.Combine(profilePath, @"Scouts Queensland", "SO Admin - Consent2Go", "Automated Upload");
+
+        private string LogFilePath = Path.Combine(consent2gopath, $"consent2golog{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}.log");
 
         public GroupLookupData GroupName { get; private set; }
 

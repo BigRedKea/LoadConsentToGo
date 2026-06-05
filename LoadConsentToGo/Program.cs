@@ -33,6 +33,8 @@ namespace LoadConsentToGo
                 return;
             }
 
+            var oneDrivePath = Environment.GetEnvironmentVariables(); //.GetEnvironmentVariable("Scouts Queensland");
+
             FileDialog openFileDialog = new OpenFileDialog
             {
                 Filter = "CSV Files | *.csv",
