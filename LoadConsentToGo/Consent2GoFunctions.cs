@@ -2,6 +2,11 @@
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.DevTools.V145.Audits;
 using System.Linq;
+using System;
+using System.IO;
+using System.Threading;
+using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace LoadConsentToGo
 {
@@ -10,17 +15,43 @@ namespace LoadConsentToGo
         IWebDriver driver = new ChromeDriver();
         public int emailcounter = 0;
 
-        public Consent2GoFunctions() {
+        public static string consent2gopath = @"C:\Consent2Go";
+
+        private string LogFilePath = Path.Combine(consent2gopath, $"consent2golog{DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss")}.log");
+
+        public GroupLookupData GroupName { get; private set; }
+
+        public Consent2GoFunctions()
+        {
             driver = new ChromeDriver();
+            Log("Consent2GoFunctions initialized");
         }
+
+        private void Log(string message)
+        {
+            try
+            {
+                var dir = Path.GetDirectoryName(LogFilePath);
+                if (!Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+                var entry = $"{DateTime.UtcNow:O} {message}{Environment.NewLine}";
+                File.AppendAllText(LogFilePath, entry);
+            }
+            catch
+            {
+                // Swallow logging errors so logging never breaks execution.
+            }
+        }
+
         public void Open()
         {
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
-            driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(5);
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+            driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
         }
 
         public void Login(string username, string password)
         {
+            Log($"Login start for user '{username}'");
             driver.Navigate().GoToUrl("https://www.mcbschools.com/Login");
 
             var loginBox = driver.FindElement(By.Name("username"));
@@ -32,13 +63,16 @@ namespace LoadConsentToGo
             driver.FindElement(By.Name("password")).SendKeys(password);
             submitButton.Click();
             Thread.Sleep(500);
-
+            Log("Login sequence completed");
         }
 
         public void Process(SMSData smsdata, List<GroupLookupData> GroupLookup, int cnt)
         {
-            if (string.IsNullOrEmpty (smsdata.SiteUniqueIdentifier))
-                            {
+            Log($"Process start: {smsdata?.FirstName} {smsdata?.LastName} Site:{smsdata?.SiteUniqueIdentifier} Count:{cnt}");
+
+            if (string.IsNullOrEmpty(smsdata.SiteUniqueIdentifier))
+            {
+                Log("No unique identifier found");
                 Console.WriteLine($"No unique identifier found ");
                 return;
             }
@@ -47,39 +81,53 @@ namespace LoadConsentToGo
 
             if (lookup == null)
             {
+                Log($"No lookup found for {smsdata.SiteUniqueIdentifier}");
                 Console.WriteLine($"No lookup found for {smsdata.SiteUniqueIdentifier}");
                 return;
             }
 
+            smsdata.Grouplookup = lookup;
+
             emailcounter++;
 
-            //MessageBox.Show($"Processing {smsdata.FirstName} {smsdata.LastName} for {lookup.FormationName}","Info",MessageBoxButtons.OK);
-
-            // Navigate to the organisation page
             var url = ($"https://www.mcbschools.com/DuplicateIndex?Id={lookup.Consent2GoOrgId}");
             driver.Navigate().GoToUrl(url);
+            Log($"Navigated to {url}");
             Thread.Sleep(2000);
 
-            if (CheckExists(smsdata, lookup, cnt))
-            {
-                return;
-            }
+            CheckExists(smsdata, lookup, cnt);
+
+
+            //    var alreadyexists = MessageBox.Show($"{cnt} Does {smsdata.FirstName} {smsdata.LastName} of {lookup.FormationName} already exist?", "Exists?", MessageBoxButtons.YesNo);
+            //Log($"CheckExists result: {(alreadyexists == DialogResult.Yes)}");
+            //return (alreadyexists == DialogResult.Yes);
+            //{
+            Log($"CheckExists returned true for {smsdata.FirstName} {smsdata.LastName}");
+            var frm = new FormSMSData();
+            frm.LoadSMSData(smsdata);
+
+            // 1. Tell Windows Forms you want to set the coordinates manually
+            frm.StartPosition = FormStartPosition.Manual;
+
+            // 2. Set the X and Y coordinates (in pixels) from the top-left of the screen
+            frm.Location = new Point(3000, 600);
+
+            var rslt = frm.ShowDialog();
+
+            if (rslt == DialogResult.OK) return;
+            //}
 
             Thread.Sleep(2000);
 
             driver.Navigate().GoToUrl("https://www.mcbschools.com/School/AddEditPlayer");
+            Log("Navigated to AddEditPlayer form");
 
             driver.FindElement(By.Id("txtFirstName")).SendKeys(smsdata.FirstName);
             driver.FindElement(By.Id("txtLastName")).SendKeys(smsdata.LastName);
             driver.FindElement(By.Id("ddlTitle")).SendKeys(smsdata.Title);
             driver.FindElement(By.Id("txtBirthDate")).SendKeys(smsdata.DateofBirth);
             driver.FindElement(By.Id("txtRegistration")).SendKeys(smsdata.UniqueIdentifier);
-            
-            // driver.FindElement(By.Id("txtEmail")).SendKeys(smsdata.Email);
-            
 
-            // bug with Consent2go... won't allow multiple emails with the same address to the same site
-            
             var email = smsdata.Email;
             switch (emailcounter % 16)
             {
@@ -137,6 +185,7 @@ namespace LoadConsentToGo
             }
 
             driver.FindElement(By.Id("txtEmail")).SendKeys(email);
+            Log($"Email set to {email}");
 
             driver.FindElement(By.Id("ddlSchoolYear")).SendKeys(smsdata.SchoolYear);
 
@@ -151,66 +200,36 @@ namespace LoadConsentToGo
                     break;
             }
 
-            // Change to the parents details tab
             driver.FindElement(By.Id("liAdditionalDetails")).Click();
-
-            //Fill in the parent details
             driver.FindElement(By.Id("txtGuardianName")).SendKeys(smsdata.Guardian1FirstName);
             driver.FindElement(By.Id("txtGuardianLastName")).SendKeys(smsdata.Guardian1LastName);
-            driver.FindElement(By.Id("ddlGuardianTitle")).SendKeys(smsdata.Guardian1WorkNumber);
+            driver.FindElement(By.Id("ddlGuardianTitle")).SendKeys(smsdata.Guardian1Title);
             driver.FindElement(By.Id("txtGuardianMobileNumber")).SendKeys(smsdata.Guardian1MobileNumber);
-            driver.FindElement(By.Id("txtGuardianEmail")).SendKeys(smsdata.Guardian1MobileNumber);
+            driver.FindElement(By.Id("txtGuardianEmail")).SendKeys(smsdata.Guardian1Email);
 
             var commit = MessageBox.Show($"Ok to Commit {smsdata.FirstName} {smsdata.LastName} of {lookup.FormationName}", "Exists?", MessageBoxButtons.YesNo);
 
             if (commit == DialogResult.Yes)
             {
                 driver.FindElement(By.Id("btnSave")).Click();
-
+                Log("Member committed by user confirmation");
                 Console.Write("Member Committed");
             }
 
-            
-
-            //var submitButton = driver.FindElement(By.TagName("button"));
-
-            // linkText = Additional Details OK
-
-            //click on id = ddlGuardianTitle OK
-            //select on id = ddlGuardianTitle with value label = Mr OK
-            //click on id = txtGuardianName OK
-            //type on id = txtGuardianName with value Chris OK
-            //click on id = txtGuardianLastName OK
-            //type on id = txtGuardianLastName with value Noonan OK
-            //click on id = txtGuardianEmail OK
-            //type on id = txtGuardianEmail with value chris @noonanfamily.org OK
-            //click on id = txtGuardianMobileNumber OK
-            //type on id = txtGuardianMobileNumber with value 0439 744 201 OK
-            //click on id = btnSave OK
-            //mouseOver on id = btnSave OK
-            //mouseOut on id = btnSave OK
-            //click on id = ddlSchoolYear
+            Log($"Process finished for {smsdata.FirstName} {smsdata.LastName}");
         }
 
-        public bool CheckExists(SMSData smsdata, GroupLookupData lookup, int cnt)
+        public void CheckExists(SMSData smsdata, GroupLookupData lookup, int cnt)
         {
-            //Search for the student by last name
+            Log($"CheckExists: Searching for {smsdata.FirstName} {smsdata.LastName} (count {cnt}) in {lookup?.FormationName}");
             driver.Navigate().GoToUrl("https://www.mcbschools.com/School/Player");
 
             driver.FindElement(By.Id("txtSearch")).SendKeys(smsdata.LastName);
 
-            //MessageBox.Show($"Waiting", "Wating?", MessageBoxButtons.YesNo);
-
-            //Commit search
             var searchicon = driver.FindElement(By.CssSelector(".fa-search"));
             IJavaScriptExecutor executor = (IJavaScriptExecutor)driver;
             executor.ExecuteScript("arguments[0].click();", searchicon);
-
-            var alreadyexists = MessageBox.Show($"{cnt} Does {smsdata.FirstName} {smsdata.LastName} of {lookup.FormationName} already exist?", "Exists?", MessageBoxButtons.YesNo);
-            return (alreadyexists == DialogResult.Yes);
-
+            Log("Search icon clicked");
         }
     }
-
-
 }

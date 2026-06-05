@@ -63,6 +63,7 @@ namespace LoadConsentToGo
         public string DistrictUniqueIdentifier { get; internal set; }
         public string RegionUniqueIdentifier { get; internal set; }
         public string BranchUniqueIdentifier { get; internal set; }
+        public GroupLookupData Grouplookup { get; internal set; }
 
         public string toString()
         {

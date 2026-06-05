@@ -38,7 +38,7 @@ namespace LoadConsentToGo
                 Filter = "CSV Files | *.csv",
                 CheckFileExists = true,
                 CheckPathExists = true,
-                InitialDirectory = "C:\\temp\\"
+                InitialDirectory = Consent2GoFunctions.consent2gopath
             };
             openFileDialog.ShowDialog();
 
