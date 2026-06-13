@@ -206,7 +206,7 @@ namespace LoadConsentToGo
             driver.FindElement(By.Id("liAdditionalDetails")).Click();
             driver.FindElement(By.Id("txtGuardianName")).SendKeys(smsdata.Guardian1FirstName);
             driver.FindElement(By.Id("txtGuardianLastName")).SendKeys(smsdata.Guardian1LastName);
-            driver.FindElement(By.Id("ddlGuardianTitle")).SendKeys(smsdata.Guardian1Title);
+            if (!string.IsNullOrEmpty(smsdata.Guardian1Title)) driver.FindElement(By.Id("ddlGuardianTitle")).SendKeys(smsdata.Guardian1Title);
             driver.FindElement(By.Id("txtGuardianMobileNumber")).SendKeys(smsdata.Guardian1MobileNumber);
             driver.FindElement(By.Id("txtGuardianEmail")).SendKeys(smsdata.Guardian1Email);
 

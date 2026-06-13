@@ -61,11 +61,14 @@ namespace LoadConsentToGo
             GroupLookupLoadData.WriteToCSV(lookup, @"C:\temp\consent2golookup.csv");
 
             var cnt = 0;
-            foreach (var item in smsdata.OrderBy(x=> x.LastName))
+            foreach (var item in smsdata.OrderBy(x => x.LastName))
             {
                 cnt++;
-                Console.WriteLine($"Processing {cnt}/ {smsdata.Count} {item}");
-                c.Process(item, lookup, cnt);
+                if (cnt > 118)
+                { 
+                    Console.WriteLine($"Processing {cnt}/ {smsdata.Count} {item}");
+                    c.Process(item, lookup, cnt);
+                }
             }
 
             MessageBox.Show("Finished", "Finished", MessageBoxButtons.OK);
