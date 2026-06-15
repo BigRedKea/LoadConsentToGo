@@ -60,6 +60,8 @@ namespace LoadConsentToGo
 
             GroupLookupLoadData.WriteToCSV(lookup, @"C:\temp\consent2golookup.csv");
 
+            c.DownloadGroupData(lookup);
+
             var cnt = 0;
             foreach (var item in smsdata.OrderBy(x => x.LastName))
             {

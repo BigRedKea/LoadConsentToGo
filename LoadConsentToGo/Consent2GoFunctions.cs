@@ -69,6 +69,37 @@ namespace LoadConsentToGo
             Log("Login sequence completed");
         }
 
+        public async Task DownloadGroupData(List<GroupLookupData> GroupLookup)
+        {
+            foreach (var lookup in GroupLookup)
+            {
+                try
+                {
+                    var url = ($"https://www.mcbschools.com/DuplicateIndex?Id={lookup.Consent2GoOrgId}");
+                    driver.Navigate().GoToUrl(url);
+                    Log($"Navigated to {url}");
+
+                    Thread.Sleep(2000);
+                    driver.Navigate().GoToUrl("https://www.mcbschools.com/School/Player");
+
+                    Thread.Sleep(1000);
+
+                    //await Task.Delay(2000);
+
+                    Log("Navigated to AddEditPlayer form");
+                    driver.FindElement(By.ClassName("btn-secondary")).Click();
+                    driver.FindElement(By.LinkText("Export to Excel")).Click();
+                    driver.FindElement(By.Id("btnSelectAllColumns")).Click();
+                    driver.FindElement(By.Id("btnReport_Player")).Click();
+                }
+                catch (Exception ex)
+                {
+                    Log($"Exception {ex.Message}" );
+                }
+
+    }
+        }
+
         public void Process(SMSData smsdata, List<GroupLookupData> GroupLookup, int cnt)
         {
             Log($"Process start: {smsdata?.FirstName} {smsdata?.LastName} Site:{smsdata?.SiteUniqueIdentifier} Count:{cnt}");
