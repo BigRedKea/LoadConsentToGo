@@ -14,12 +14,14 @@ namespace LoadConsentToGo
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            Process();
+
+            var frmMain = new FormMain();
+            frmMain.ShowDialog();
+            Process(frmMain.FormAction);
         }
 
-        public static void Process()
+        public static void Process(string action)
         {
-
             // open secrets.json and read the username and password
             var filename = "secrets.json";
             var jsonData = File.ReadAllText(filename);
@@ -33,24 +35,6 @@ namespace LoadConsentToGo
                 return;
             }
 
-            var oneDrivePath = Environment.GetEnvironmentVariables(); //.GetEnvironmentVariable("Scouts Queensland");
-
-            FileDialog openFileDialog = new OpenFileDialog
-            {
-                Filter = "CSV Files | *.csv",
-                CheckFileExists = true,
-                CheckPathExists = true,
-                InitialDirectory = Consent2GoFunctions.consent2gopath
-            };
-            openFileDialog.ShowDialog();
-
-            if (openFileDialog.FileName == "")
-            {
-                MessageBox.Show("No file selected", "Error", MessageBoxButtons.OK);
-                return;
-            }
-
-            var smsdata = LoadSMSData.Load(openFileDialog.FileName);
             var c = new Consent2GoFunctions();
 
             c.Open();
@@ -60,20 +44,44 @@ namespace LoadConsentToGo
 
             GroupLookupLoadData.WriteToCSV(lookup, @"C:\temp\consent2golookup.csv");
 
-            c.DownloadGroupData(lookup);
-
-            var cnt = 0;
-            foreach (var item in smsdata.OrderBy(x => x.LastName))
+            switch (action)
             {
-                cnt++;
-                if (cnt > 118)
-                { 
-                    Console.WriteLine($"Processing {cnt}/ {smsdata.Count} {item}");
-                    c.Process(item, lookup, cnt);
-                }
-            }
+                case "download":
 
-            MessageBox.Show("Finished", "Finished", MessageBoxButtons.OK);
+                    c.DownloadGroupData(lookup);
+                    break;
+
+                case "upload":
+
+                    var oneDrivePath = Environment.GetEnvironmentVariables(); //.GetEnvironmentVariable("Scouts Queensland");
+
+                    FileDialog openFileDialog = new OpenFileDialog
+                    {
+                        Filter = "CSV Files | *.csv",
+                        CheckFileExists = true,
+                        CheckPathExists = true,
+                        InitialDirectory = Consent2GoFunctions.consent2gopath
+                    };
+                    openFileDialog.ShowDialog();
+
+                    if (openFileDialog.FileName == "")
+                    {
+                        MessageBox.Show("No file selected", "Error", MessageBoxButtons.OK);
+                        return;
+                    }
+
+                    var smsdata = LoadSMSData.Load(openFileDialog.FileName);
+
+                    var cnt = 0;
+                    foreach (var item in smsdata.OrderBy(x => x.LastName))
+                    {
+                        Console.WriteLine($"Processing {cnt}/ {smsdata.Count} {item}");
+                        c.Process(item, lookup, cnt);
+                    }
+
+                    MessageBox.Show("Finished", "Finished", MessageBoxButtons.OK);
+                    break;
+            }
 
         }
     }
