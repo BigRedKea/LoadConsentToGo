@@ -69,8 +69,47 @@ namespace LoadConsentToGo
             Log("Login sequence completed");
         }
 
-        public async Task DownloadGroupData(List<GroupLookupData> GroupLookup)
+        void WriteFileToDownloads(string formationName)
         {
+            try
+            {
+                // 1. Get the path to the current user's Downloads folder
+                string downloadsPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    "Downloads"
+                );
+
+                // 2. Generate a safe timestamp string (yyyyMMdd_HHmmss)
+                // Colons (:) and slashes (/) are illegal in Windows filenames
+                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+
+                // 3. Create the full file path
+                string fileName = $"Log_{timestamp}{formationName}.txt";
+                string fullPath = Path.Combine(downloadsPath, fileName);
+
+                // 4. File content
+                string content = $"File created at: {DateTime.Now}\nHello from C#!";
+
+                try
+                {
+                    // 5. Write the content to the file
+                    File.WriteAllText(fullPath, content);
+                    Console.WriteLine($"File successfully saved to: {fullPath}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An error occurred: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"Exception {ex.Message}");
+            }
+        }
+
+        public void DownloadGroupData(List<GroupLookupData> GroupLookup)
+        {
+            var cnt = 0;
             foreach (var lookup in GroupLookup)
             {
                 try
@@ -84,9 +123,10 @@ namespace LoadConsentToGo
 
                     Thread.Sleep(1000);
 
-                    //await Task.Delay(2000);
+                    WriteFileToDownloads(lookup.FormationName);
 
-                    Log("Navigated to AddEditPlayer form");
+                    Console.WriteLine($"{lookup.FormationName} {cnt++} / {GroupLookup.Count()}");
+
                     driver.FindElement(By.ClassName("btn-secondary")).Click();
                     driver.FindElement(By.LinkText("Export to Excel")).Click();
                     driver.FindElement(By.Id("btnSelectAllColumns")).Click();
@@ -94,10 +134,10 @@ namespace LoadConsentToGo
                 }
                 catch (Exception ex)
                 {
-                    Log($"Exception {ex.Message}" );
+                    Log($"Exception {ex.Message}");
                 }
 
-    }
+            }
         }
 
         public void Process(SMSData smsdata, List<GroupLookupData> GroupLookup, int cnt)
