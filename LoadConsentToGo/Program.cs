@@ -1,5 +1,6 @@
+using Microsoft.VisualBasic.ApplicationServices;
 using Newtonsoft.Json;
-using OpenQA.Selenium.DevTools.V145.Page;
+//using OpenQA.Selenium.DevTools.V145.Page;
 
 namespace LoadConsentToGo
 {
@@ -35,10 +36,6 @@ namespace LoadConsentToGo
                 return;
             }
 
-            var c = new Consent2GoFunctions();
-
-            c.Open();
-            c.Login(config.Consent2GoUsername, config.Consent2GoPassword);
 
             var lookup = GroupLookupLoadData.Load("GroupLookup.json");
 
@@ -47,41 +44,60 @@ namespace LoadConsentToGo
             switch (action)
             {
                 case "download":
+                    {
+                        var c = new Consent2GoFunctions();
+                        c.Open();
+                        c.Login(config.Consent2GoUsername, config.Consent2GoPassword);
+                        c.DownloadGroupData(lookup);
+                        break;
+                    }
 
-                    c.DownloadGroupData(lookup);
-                    break;
+                case "baseline":
+                    {
+                        // Pull data from Excel Downloads
+                        var mergeddata = MergeExcelData.Execute();
+                        var x = SqlLiteWrapper.Upsert(@"c:\temp\consent2go.db", mergeddata);
+                        Console.WriteLine($"Merged {x} items from {mergeddata.Count} records from Excel files");
+                        break;
+                    }
 
                 case "upload":
-
-                    var oneDrivePath = Environment.GetEnvironmentVariables(); //.GetEnvironmentVariable("Scouts Queensland");
-
-                    FileDialog openFileDialog = new OpenFileDialog
                     {
-                        Filter = "CSV Files | *.csv",
-                        CheckFileExists = true,
-                        CheckPathExists = true,
-                        InitialDirectory = Consent2GoFunctions.consent2gopath
-                    };
-                    openFileDialog.ShowDialog();
+                        var c = new Consent2GoFunctions();
+                        c.Open();
+                        c.Login(config.Consent2GoUsername, config.Consent2GoPassword);
+                        var oneDrivePath = Environment.GetEnvironmentVariables(); //.GetEnvironmentVariable("Scouts Queensland");
 
-                    if (openFileDialog.FileName == "")
-                    {
-                        MessageBox.Show("No file selected", "Error", MessageBoxButtons.OK);
-                        return;
+                        FileDialog openFileDialog = new OpenFileDialog
+                        {
+                            Filter = "CSV Files | *.csv",
+                            CheckFileExists = true,
+                            CheckPathExists = true,
+                            InitialDirectory = Consent2GoFunctions.consent2gopath
+                        };
+                        openFileDialog.ShowDialog();
+
+                        if (openFileDialog.FileName == "")
+                        {
+                            MessageBox.Show("No file selected", "Error", MessageBoxButtons.OK);
+                            return;
+                        }
+
+                        var smsdata = LoadSMSData.Load(openFileDialog.FileName);
+
+                        var cnt = 0;
+                        foreach (var item in smsdata.OrderBy(x => x.LastName))
+                        {
+                            Console.WriteLine($"Processing {cnt}/ {smsdata.Count} {item}");
+                            c.Process(item, lookup, cnt);
+                        }
+
+
+                        break;
                     }
-
-                    var smsdata = LoadSMSData.Load(openFileDialog.FileName);
-
-                    var cnt = 0;
-                    foreach (var item in smsdata.OrderBy(x => x.LastName))
-                    {
-                        Console.WriteLine($"Processing {cnt}/ {smsdata.Count} {item}");
-                        c.Process(item, lookup, cnt);
-                    }
-
-                    MessageBox.Show("Finished", "Finished", MessageBoxButtons.OK);
-                    break;
             }
+
+            MessageBox.Show("Finished", "Finished", MessageBoxButtons.OK);
 
         }
     }

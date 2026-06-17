@@ -1,12 +1,6 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.DevTools.V145.Audits;
-using System.Linq;
-using System;
-using System.IO;
-using System.Threading;
-using System.Collections.Generic;
-using System.Windows.Forms;
+//using OpenQA.Selenium.DevTools.V145.Audits;
 
 namespace LoadConsentToGo
 {
@@ -22,7 +16,7 @@ namespace LoadConsentToGo
 
         private string LogFilePath = Path.Combine(consent2gopath, $"consent2golog{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}.log");
 
-        public GroupLookupData GroupName { get; private set; }
+        public GroupLookupData? GroupName { get; private set; }
 
         public Consent2GoFunctions()
         {
