@@ -1,11 +1,4 @@
-﻿using ExcelDataReader.Log;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace LoadConsentToGo
 {
@@ -19,7 +12,7 @@ namespace LoadConsentToGo
             {
                 Description = "Select the directory containing the xlsx files to merge",
 
-                InitialDirectory = Consent2GoFunctions.consent2gopath
+                InitialDirectory = Consent2GoFunctions.consent2gopathupdownloads
             };
             openFileDialog.ShowDialog();
 

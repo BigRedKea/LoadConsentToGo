@@ -11,10 +11,14 @@ namespace LoadConsentToGo
 
         public static string profilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).ToString();
 
-        //public static string consent2gopath = @"C:\Consent2Go";
         public static string consent2gopath = Path.Combine(profilePath, @"Scouts Queensland", "SO Admin - Consent2Go", "Automated Upload");
+        public static string consent2gopathupload = Path.Combine(consent2gopath, "Upload");
+        public static string consent2gopathuploadlog = Path.Combine(consent2gopathupload, "Log");
+        public static string consent2gopathupdownloads = Path.Combine(consent2gopathupload, "Downloads");
 
-        private string LogFilePath = Path.Combine(consent2gopath, $"consent2golog{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}.log");
+        private string LogFilePath = Path.Combine(consent2gopathuploadlog, $"consent2golog{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}.log");
+        internal static string consent2gopathlookup = Path.Combine(consent2gopath, "Lookups");
+        internal static string consent2gopathdatabase = Path.Combine(consent2gopath, "Database");
 
         public GroupLookupData? GroupName { get; private set; }
 
@@ -63,43 +67,6 @@ namespace LoadConsentToGo
             Log("Login sequence completed");
         }
 
-        void WriteFileToDownloads(string formationName)
-        {
-            try
-            {
-                // 1. Get the path to the current user's Downloads folder
-                string downloadsPath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                    "Downloads"
-                );
-
-                // 2. Generate a safe timestamp string (yyyyMMdd_HHmmss)
-                // Colons (:) and slashes (/) are illegal in Windows filenames
-                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-
-                // 3. Create the full file path
-                string fileName = $"Log_{timestamp}{formationName}.txt";
-                string fullPath = Path.Combine(downloadsPath, fileName);
-
-                // 4. File content
-                string content = $"File created at: {DateTime.Now}\nHello from C#!";
-
-                try
-                {
-                    // 5. Write the content to the file
-                    File.WriteAllText(fullPath, content);
-                    Console.WriteLine($"File successfully saved to: {fullPath}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"An error occurred: {ex.Message}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Log($"Exception {ex.Message}");
-            }
-        }
 
         public void DownloadGroupData(List<GroupLookupData> GroupLookup)
         {
@@ -115,15 +82,16 @@ namespace LoadConsentToGo
                     Thread.Sleep(2000);
                     driver.Navigate().GoToUrl("https://www.mcbschools.com/School/Player");
 
-                    Thread.Sleep(1000);
-
-                    WriteFileToDownloads(lookup.FormationName);
-
+                   
                     Console.WriteLine($"{lookup.FormationName} {cnt++} / {GroupLookup.Count()}");
 
+                    Thread.Sleep(1000);
                     driver.FindElement(By.ClassName("btn-secondary")).Click();
+                    Thread.Sleep(1000);
                     driver.FindElement(By.LinkText("Export to Excel")).Click();
+                    Thread.Sleep(1000);
                     driver.FindElement(By.Id("btnSelectAllColumns")).Click();
+                    Thread.Sleep(1000);
                     driver.FindElement(By.Id("btnReport_Player")).Click();
                 }
                 catch (Exception ex)

@@ -39,7 +39,7 @@ namespace LoadConsentToGo
 
             var lookup = GroupLookupLoadData.Load("GroupLookup.json");
 
-            GroupLookupLoadData.WriteToCSV(lookup, @"C:\temp\consent2golookup.csv");
+            GroupLookupLoadData.WriteToCSV(lookup,  Path.Combine( Consent2GoFunctions.consent2gopathlookup, "consent2golookup.csv"));
 
             switch (action)
             {
@@ -56,7 +56,8 @@ namespace LoadConsentToGo
                     {
                         // Pull data from Excel Downloads
                         var mergeddata = MergeExcelData.Execute();
-                        var x = SqlLiteWrapper.Upsert(@"c:\temp\consent2go.db", mergeddata);
+                        var path = Path.Combine(Consent2GoFunctions.consent2gopathdatabase, @"consent2go.db");
+                        var x = SqlLiteWrapper.Upsert(path, mergeddata);
                         Console.WriteLine($"Merged {x} items from {mergeddata.Count} records from Excel files");
                         break;
                     }
@@ -66,14 +67,14 @@ namespace LoadConsentToGo
                         var c = new Consent2GoFunctions();
                         c.Open();
                         c.Login(config.Consent2GoUsername, config.Consent2GoPassword);
-                        var oneDrivePath = Environment.GetEnvironmentVariables(); //.GetEnvironmentVariable("Scouts Queensland");
+                        //var oneDrivePath = Environment.GetEnvironmentVariables(); //.GetEnvironmentVariable("Scouts Queensland");
 
                         FileDialog openFileDialog = new OpenFileDialog
                         {
                             Filter = "CSV Files | *.csv",
                             CheckFileExists = true,
                             CheckPathExists = true,
-                            InitialDirectory = Consent2GoFunctions.consent2gopath
+                            InitialDirectory = Consent2GoFunctions.consent2gopathupdownloads
                         };
                         openFileDialog.ShowDialog();
 
@@ -91,7 +92,6 @@ namespace LoadConsentToGo
                             Console.WriteLine($"Processing {cnt}/ {smsdata.Count} {item}");
                             c.Process(item, lookup, cnt);
                         }
-
 
                         break;
                     }

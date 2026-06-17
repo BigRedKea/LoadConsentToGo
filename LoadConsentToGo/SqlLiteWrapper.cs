@@ -152,7 +152,7 @@ namespace LoadConsentToGo
 
                         insertedCount++;
                         // Data doesn't have this record adding it.
-                        Console.WriteLine("Inserting Record");
+                        Console.WriteLine($"Inserting Record {c2g.UniqueIdentifier} {c2g.Title} {c2g.FirstName} {c2g.LastName}");
 
                         string upsertSql = @"
                         INSERT INTO Consent2GoProfiles (
