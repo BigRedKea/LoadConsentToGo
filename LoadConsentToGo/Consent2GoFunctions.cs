@@ -6,13 +6,13 @@ namespace LoadConsentToGo
 {
     internal class Consent2GoFunctions
     {
-        IWebDriver driver = new ChromeDriver();
+        readonly ChromeDriver driver = new();
         public int emailcounter = 0;
 
         public static string profilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).ToString();
 
-        public static string consent2gopath = Path.Combine(profilePath, @"Scouts Queensland", "SO Admin - Consent2Go", "Automated Upload");
-        public static string consent2gopathupload = Path.Combine(consent2gopath, "Upload");
+        public static string consent2gopath = Path.Combine(profilePath, @"OneDrive - Scouts Queensland", "SO Admin - Consent2Go", "Automated Upload");
+        public static string consent2gopathupload = Path.Combine(consent2gopath, "Uploads");
         public static string consent2gopathuploadlog = Path.Combine(consent2gopathupload, "Log");
         public static string consent2gopathupdownloads = Path.Combine(consent2gopathupload, "Downloads");
 

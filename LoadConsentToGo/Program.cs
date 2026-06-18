@@ -1,6 +1,6 @@
-using Microsoft.VisualBasic.ApplicationServices;
+
 using Newtonsoft.Json;
-//using OpenQA.Selenium.DevTools.V145.Page;
+
 
 namespace LoadConsentToGo
 {
@@ -24,8 +24,23 @@ namespace LoadConsentToGo
         public static void Process(string action)
         {
             // open secrets.json and read the username and password
-            var filename = "secrets.json";
-            var jsonData = File.ReadAllText(filename);
+            var filename = Path.Combine(Consent2GoFunctions.consent2gopath, "secrets.json");
+            string jsonData;
+
+            try
+            {
+                jsonData = File.ReadAllText(filename);
+            }
+            catch (DirectoryNotFoundException ex)
+            {
+                MessageBox.Show($"Directory not found: {ex.Message}", "Error", MessageBoxButtons.OK);
+                return;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error reading config: {ex.Message}", "Error", MessageBoxButtons.OK);
+                return;
+            }
 
             Console.WriteLine("Reading secrets.json");
 
@@ -36,10 +51,13 @@ namespace LoadConsentToGo
                 return;
             }
 
-
             var lookup = GroupLookupLoadData.Load("GroupLookup.json");
 
             GroupLookupLoadData.WriteToCSV(lookup,  Path.Combine( Consent2GoFunctions.consent2gopathlookup, "consent2golookup.csv"));
+
+            var path = Path.Combine(Consent2GoFunctions.consent2gopathdatabase, @"consent2go.db");
+            var sqlLiteWrapper = new SqlLiteWrapper(path);
+
 
             switch (action)
             {
@@ -56,20 +74,14 @@ namespace LoadConsentToGo
                     {
                         // Pull data from Excel Downloads
                         var mergeddata = MergeExcelData.Execute();
-                        var path = Path.Combine(Consent2GoFunctions.consent2gopathdatabase, @"consent2go.db");
-                        var x = SqlLiteWrapper.Upsert(path, mergeddata);
+                        var x = sqlLiteWrapper.Upsert(mergeddata);
                         Console.WriteLine($"Merged {x} items from {mergeddata.Count} records from Excel files");
                         break;
                     }
 
                 case "upload":
                     {
-                        var c = new Consent2GoFunctions();
-                        c.Open();
-                        c.Login(config.Consent2GoUsername, config.Consent2GoPassword);
-                        //var oneDrivePath = Environment.GetEnvironmentVariables(); //.GetEnvironmentVariable("Scouts Queensland");
-
-                        FileDialog openFileDialog = new OpenFileDialog
+                        var openFileDialog = new OpenFileDialog
                         {
                             Filter = "CSV Files | *.csv",
                             CheckFileExists = true,
@@ -84,13 +96,31 @@ namespace LoadConsentToGo
                             return;
                         }
 
+                        var c = new Consent2GoFunctions();
+                        c.Open();
+                        c.Login(config.Consent2GoUsername, config.Consent2GoPassword);
+
                         var smsdata = LoadSMSData.Load(openFileDialog.FileName);
+                        var baselinedata = sqlLiteWrapper.GetData();
 
                         var cnt = 0;
+                        
+
                         foreach (var item in smsdata.OrderBy(x => x.LastName))
                         {
-                            Console.WriteLine($"Processing {cnt}/ {smsdata.Count} {item}");
-                            c.Process(item, lookup, cnt);
+                            if (baselinedata.Any(x => x.UniqueIdentifier == item.UniqueIdentifier))
+                            {
+                                Console.WriteLine($"Skipping {item} as it exists in baseline data");
+                                continue;
+                            }
+                            try
+                            {
+                                Console.WriteLine($"Processing {cnt}/ {smsdata.Count} {item}");
+                                c.Process(item, lookup, cnt);
+                            } catch (Exception ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                            }
                         }
 
                         break;

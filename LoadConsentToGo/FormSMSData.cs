@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace LoadConsentToGo
 {
@@ -20,10 +21,11 @@ namespace LoadConsentToGo
 
         internal void LoadSMSData(SMSData smsdata)
         {
-            txtGroup.Text = smsdata.Grouplookup.FormationName;
+            txtGroup.Text = smsdata.Grouplookup?.FormationName;
             txtFirstName.Text = smsdata.FirstName;
             txtLastName.Text = smsdata.LastName;
             txtGuardian1Email.Text = smsdata.Guardian1Email;
+            txtUniqueId.Text = smsdata.UniqueIdentifier;
         }
 
 
@@ -38,6 +40,11 @@ namespace LoadConsentToGo
             // Create
             DialogResult = DialogResult.Yes;
             Close();
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
