@@ -235,6 +235,7 @@ namespace LoadConsentToGo
                     driver.FindElement(By.CssSelector("label[for='GenderFemale']")).Click();
                     break;
             }
+            var msgboxresult = MessageBox.Show($"Check email is ok ", "Check Data", MessageBoxButtons.OK);
 
             driver.FindElement(By.Id("liAdditionalDetails")).Click();
             driver.FindElement(By.Id("txtGuardianName")).SendKeys(smsdata.Guardian1FirstName);
