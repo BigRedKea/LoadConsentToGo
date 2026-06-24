@@ -116,11 +116,22 @@ namespace LoadConsentToGo
 
                 // Process the data as needed
                 Console.WriteLine($"Loaded {smsdata}");
-                //Hack
+
+                // Insert Rover Adult information in as Rover Guardian information if not provided in the CSV
+                if (smsdata.SchoolYear == "RS")
+                {
+                    if (string.IsNullOrEmpty(smsdata.Guardian1FirstName)) smsdata.Guardian1FirstName = smsdata.FirstName;
+                    if (string.IsNullOrEmpty(smsdata.Guardian1LastName)) smsdata.Guardian1LastName = smsdata.LastName;
+                    if (string.IsNullOrEmpty(smsdata.Guardian1Title)) smsdata.Guardian1Title = smsdata.Title;
+                }
+
+                // Remove title row
                 if (i>0) smsDataList.Add(smsdata);
 
                 i++;
             }
+
+
 
             return smsDataList;
         }
