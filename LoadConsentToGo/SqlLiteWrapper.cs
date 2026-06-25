@@ -1,9 +1,5 @@
 ﻿
-using LoadConsentToGo;
 using Microsoft.Data.Sqlite;
-using OpenQA.Selenium.BiDi.Script;
-using OpenQA.Selenium.DevTools.V147.DOM; // Or System.Data.SQLite
-
 
 namespace LoadConsentToGo
 {
@@ -11,9 +7,8 @@ namespace LoadConsentToGo
     public class SqlLiteWrapper : IDisposable
     {
 
-        SqliteConnection connection;
+        private readonly SqliteConnection connection;
         private bool disposedValue;
-        private bool disposedValue1;
 
         internal SqlLiteWrapper(string dbfilepath)
         {
@@ -129,7 +124,7 @@ namespace LoadConsentToGo
             createCommand.ExecuteNonQuery();
         }
 
-        internal int Upsert(List<C2GDownload> c2gdata)
+        internal int Upsert(List<C2GData> c2gdata)
         {
             var insertedCount = 0;
             CreateTable(connection);
@@ -147,11 +142,11 @@ namespace LoadConsentToGo
             return insertedCount;
         }
 
-        internal void Insert(C2GDownload c2g)
+        internal void Insert(C2GData c2g)
         {
 
             // Data doesn't have this record adding it.
-            Console.WriteLine($"Inserting Record {c2g.UniqueIdentifier} {c2g.Title} {c2g.FirstName} {c2g.LastName}");
+            Logging.Instance.Log($"Inserting Record {c2g.UniqueIdentifier} {c2g.Title} {c2g.FirstName} {c2g.LastName}");
 
             string upsertSql = @"
                         INSERT INTO Consent2GoProfiles (
@@ -454,7 +449,7 @@ namespace LoadConsentToGo
         }
 
 
-        internal void AddParameter(SqliteCommand command, string name, object? obj)
+        internal static void AddParameter(SqliteCommand command, string name, object? obj)
         {
             var parameter = command.CreateParameter();
             parameter.ParameterName = name;
@@ -470,10 +465,10 @@ namespace LoadConsentToGo
             command.Parameters.Add(parameter);
         }
 
-        internal List<C2GDownload> GetData()
+        internal List<C2GData> GetData()
         {
             string sql = "SELECT * FROM Consent2GoProfiles";
-            var existingdata = new List<C2GDownload>();
+            var existingdata = new List<C2GData>();
             using var command = new SqliteCommand(sql, connection);
 
             // Execute the reader to get a forward-only stream of rows
@@ -484,7 +479,7 @@ namespace LoadConsentToGo
             while (reader.Read())
             {
                 // Use attribute-based mapping to avoid manual name typos
-                var c2g = DbMapper.MapRowTo<C2GDownload>(reader);
+                var c2g = DbMapper.MapRowTo<C2GData>(reader);
                 existingdata.Add(c2g);
             }
 
@@ -500,7 +495,7 @@ namespace LoadConsentToGo
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue1)
+            if (!disposedValue)
             {
                 if (disposing)
                 {
@@ -509,7 +504,7 @@ namespace LoadConsentToGo
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
-                disposedValue1 = true;
+                disposedValue = true;
             }
         }
     }

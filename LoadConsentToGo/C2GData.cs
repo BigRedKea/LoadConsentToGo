@@ -3,76 +3,7 @@
 namespace LoadConsentToGo
 {
 
-    //    internal class SMSData
-    //    {
-    //        public string? Address { get; set; }
-
-    //        public string? FamilyDoctorState { get; set; }
-
-    //        public string? FirstName { get; set; }
-    //        public string? LastName { get; set; }
-    //        public string? PhoneNumber { get; set; }
-    //        //public string InstanceLookup { get; set; }
-    //        public string? Title { get; set; }
-    //        public string? DateofBirth { get; set; }
-    //        public string? Gender { get; set; }
-    //        public string? Email { get; set; }
-    //        public string? SchoolYear { get; set; }
-    //        public string? UniqueIdentifier { get; set; }
-    //        //public string ExamNoSCSA { get; set; }
-    //        //public string Suburb { get; set; }
-    //        //public string State { get; set; }
-    //        //public string Postcode { get; set; }
-    //        //public string MobileNumber { get; set; }
-    //        //public string HomeRoom { get; set; }
-    //        //public string House { get; set; }
-    //        public string? Guardian1Title { get; set; }
-    //        public string? Guardian1FirstName { get; set; }
-    //        public string? Guardian1LastName { get; set; }
-    //        public string? Guardian1Email { get; set; }
-    //        //public string Guardian1Address { get; set; }
-    //        //public string Guardian1Suburb { get; set; }
-    //        //public string Guardian1State { get; set; }
-    //        //public string Guardian1Postcode { get; set; }
-    //        //public string Guardian1HomeNumber { get; set; }
-    //        //public string Guardian1WorkNumber { get; set; }
-    //        public string? Guardian1MobileNumber { get; set; }
-    //        //public string Guardian2Title { get; set; }
-    //        //public string Guardian2FirstName { get; set; }
-    //        //public string Guardian2LastName { get; set; }
-    //        //public string Guardian2Address { get; set; }
-    //        //public string Guardian2Suburb { get; set; }
-    //        //public string Guardian2Email { get; set; }
-    //        //public string Guardian2State { get; set; }
-    //        //public string Guardian2Postcode { get; set; }
-    //        //public string Guardian2HomeNumber { get; set; }
-    //        //public string Guardian2WorkNumber { get; set; }
-    //        //public string Guardian2MobileNumber { get; set; }
-    //        //public string EmergencyContactName { get; set; }
-    //        //public string EmergencyContactNumber { get; set; }
-    //        //public string IsEmergencyMedicalAuthorised { get; set; }
-    //        //public string FamilyDoctorName { get; set; }
-    //        //public string FamilyDoctorSurgeryName { get; set; }
-    //        //public string FamilyDoctorAddress { get; set; }
-    //        //public string FamilyDoctorSuburb { get; set; }
-    //        //public string FamilyDoctorPostcode { get; set; }
-    //        //public string FamilyDoctorNumber { get; set; }
-    //        public string? SiteUniqueIdentifier { get; set; }
-    //        //public string DistrictUniqueIdentifier { get; set; }
-    //        //public string RegionUniqueIdentifier { get; set; }
-    //        //public string BranchUniqueIdentifier { get; set; }
-    //        public GroupLookupData? Grouplookup { get; set; }
-
-    //        public override string ToString()
-    //        {
-    //            return $"{Title} {FirstName} {LastName} {PhoneNumber} ";
-    //        }
-    //    }
-    //}
-
-
-
-    internal class C2GDownload
+    internal class C2GData
     {
         [ColumnName("UniqueIdentifier")]
         public string? UniqueIdentifier { get; set; }
@@ -194,7 +125,7 @@ namespace LoadConsentToGo
         public string? ExcursionBlockedComment { get; set; }
 
         [ColumnName("ExcursionBlockedReason")]
-        public string? ExcursionBlockedReason{ get; set; }
+        public string? ExcursionBlockedReason { get; set; }
 
         [ColumnName("Guardian1Email")]
         public string? Guardian1Email { get; set; }
@@ -239,7 +170,7 @@ namespace LoadConsentToGo
         public string? Guardian1WorkNumber { get; set; }
 
         [ColumnName("Guardian2Email")]
-        public string? Guardian2Email{ get; set; }
+        public string? Guardian2Email { get; set; }
 
         [ColumnName("Guardian2EmailVerified")]
         public string? Guardian2EmailVerified { get; set; }
@@ -278,7 +209,7 @@ namespace LoadConsentToGo
         public string? Guardian2Title { get; set; }
 
         [ColumnName("Guardian2WorkNumber")]
-        public string? Guardian2WorkNumber{ get; set; }
+        public string? Guardian2WorkNumber { get; set; }
 
         [ColumnName("House")]
         public string? House { get; set; }
@@ -287,7 +218,7 @@ namespace LoadConsentToGo
         public string? LanguageSpokenAtHome { get; set; }
 
         [ColumnName("LanguageSpokenAtHomeId")]
-        public string? LanguageSpokenAtHomeId{ get; set; }
+        public string? LanguageSpokenAtHomeId { get; set; }
 
         [ColumnName("MedicAlertBracelet")]
         public string? MedicAlertBracelet { get; set; }
@@ -299,7 +230,7 @@ namespace LoadConsentToGo
         public string? MobileNumber { get; set; }
 
         [ColumnName("ModifiedDate")]
-        public string? ModifiedDate{ get; set; }
+        public string? ModifiedDate { get; set; }
 
         [ColumnName("Paid")]
         public string? Paid { get; set; }
@@ -310,7 +241,7 @@ namespace LoadConsentToGo
         public string? PermissionAntiInflammatory { get; set; }
 
         [ColumnName("PermissionEmergencyMedical")]
-        public string? PermissionEmergencyMedical{ get; set; }
+        public string? PermissionEmergencyMedical { get; set; }
 
         [ColumnName("PermissionIbuprofen")]
         public string? PermissionIbuprofen { get; set; }
@@ -355,12 +286,18 @@ namespace LoadConsentToGo
         public string? WearsGlasses { get; set; }
 
         [ColumnName("WearsHearingAid")]
-        public string? WearsHearingAid {get; set; }
+        public string? WearsHearingAid { get; set; }
 
         [ColumnName("C2gSiteIdentifier")]
         public string? C2gSiteIdentifier { get; set; }
-        public string SiteUniqueIdentifier { get; set; }
+        public string? SiteUniqueIdentifier { get; set; }
         public GroupLookupData? Grouplookup { get; set; }
+
+
+        public override string ToString()
+        {
+            return $"{Title} {FirstName} {LastName} {PhoneNumber} ";
+        }
 
     }
 }

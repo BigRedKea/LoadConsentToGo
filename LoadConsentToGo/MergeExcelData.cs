@@ -4,10 +4,10 @@ namespace LoadConsentToGo
 {
     internal class MergeExcelData
     {
-        public static List<C2GDownload> Execute()
+        public static List<C2GData> Execute()
         {
 
-            var result = new List<C2GDownload>();
+            var result = new List<C2GData>();
             var openFileDialog = new FolderBrowserDialog()
             {
                 Description = "Select the directory containing the xlsx files to merge",
@@ -28,7 +28,7 @@ namespace LoadConsentToGo
                 var f = new FileInfo(file);
                 if (f.Length ==0 )
                 {
-                    Console.WriteLine($"{file} is empty");
+                    Logging.Instance.Log($"{file} is empty");
                     continue;
                 }
                 try
@@ -40,7 +40,7 @@ namespace LoadConsentToGo
 
                         if (rowcount > 0)
                         {
-                            var c2g = new C2GDownload();
+                            var c2g = new C2GData();
                             int c = 0;
                             c2g.UniqueIdentifier = reader.GetString(c++);
                             c2g.Title = reader.GetString(c++);
@@ -146,27 +146,12 @@ namespace LoadConsentToGo
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error reading file {file} {f.Length}: {ex.Message}");
+                    Logging.Instance.Log($"Error reading file {file} {f.Length}: {ex.Message}");
                 }
             }
 
             return result;
 
-            //// Write merged data to a new CSV file
-            //var outputFilePath = Path.Combine(downloaddirectory, "MergedData.csv");
-            //using (var writer = new StreamWriter(outputFilePath))
-            //{
-            //    // Write header
-            //    writer.WriteLine("Column1,Column2,Column3"); // Adjust header as needed
-
-            //    // Write merged data
-            //    foreach (var row in mergedData)
-            //    {
-            //        writer.WriteLine(string.Join(",", row));
-            //    }
-            //}
-
-            //Console.WriteLine($"Merged data has been written to {outputFilePath}");
         }
 
     }

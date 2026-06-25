@@ -2,7 +2,7 @@
 {
     internal class ConfigData
     {
-        public string Consent2GoUsername { get; set; }
-        public string Consent2GoPassword { get; set; }
+        public required string Consent2GoUsername { get; set; }
+        public required string Consent2GoPassword { get; set; }
     }
 }

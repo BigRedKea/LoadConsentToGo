@@ -1,59 +1,41 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using System.Security.Policy;
-//using OpenQA.Selenium.DevTools.V145.Audits;
 
 namespace LoadConsentToGo
 {
     internal class Consent2GoFunctions
     {
-        readonly ChromeDriver driver = new();
-        public int emailcounter = 0;
+        private readonly ChromeDriver driver = new();
+        private int emailcounter = 0;
 
-        public static string profilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).ToString();
+        internal static string profilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).ToString();
 
-        public static string consent2gopath = Path.Combine(profilePath, @"Scouts Queensland", "SO Admin - Consent2Go", "Automated Upload");
-        public static string consent2gopathupload = Path.Combine(consent2gopath, "Uploads");
-        public static string consent2gopathuploadlog = Path.Combine(consent2gopathupload, "Logs");
-        public static string consent2gopathupdownloads = Path.Combine(consent2gopathupload, "Downloads");
+        internal static string consent2gopath = Path.Combine(profilePath, @"Scouts Queensland", "SO Admin - Consent2Go", "Automated Upload");
+        internal static string consent2gopathupload = Path.Combine(consent2gopath, "Uploads");
+        internal static string consent2gopathuploadlog = Path.Combine(consent2gopathupload, "Logs");
+        internal static string consent2gopathupdownloads = Path.Combine(consent2gopathupload, "Downloads");
 
-        private string LogFilePath = Path.Combine(consent2gopathuploadlog, $"consent2golog{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}.log");
         internal static string consent2gopathlookup = Path.Combine(consent2gopath, "Lookups");
         internal static string consent2gopathdatabase = Path.Combine(consent2gopath, "Database");
 
-        public GroupLookupData? GroupName { get; private set; }
+        internal GroupLookupData? GroupName { get; private set; }
 
-        public Consent2GoFunctions()
+        internal Consent2GoFunctions()
         {
             driver = new ChromeDriver();
-            Log("Consent2GoFunctions initialized");
+            Logging.Instance.Log("Consent2GoFunctions initialized");
         }
 
-        public void Log(string message)
-        {
-            try
-            {
-                var dir = Path.GetDirectoryName(LogFilePath);
-                if (!Directory.Exists(dir))
-                    Directory.CreateDirectory(dir);
-                var entry = $"{DateTime.UtcNow:O} {message}{Environment.NewLine}";
-                File.AppendAllText(LogFilePath, entry);
-            }
-            catch
-            {
-                // Swallow logging errors so logging never breaks execution.
-            }
-        }
 
-        public void Open()
+        internal void Open()
         {
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
             driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
         }
 
-        public void Login(string username, string password)
+        internal void Login(string username, string password)
         {
-            Log($"Login start for user '{username}'");
+            Logging.Instance.Log($"Login start for user '{username}'");
             driver.Navigate().GoToUrl("https://www.mcbschools.com/Login");
 
             var loginBox = driver.FindElement(By.Name("username"));
@@ -65,11 +47,11 @@ namespace LoadConsentToGo
             driver.FindElement(By.Name("password")).SendKeys(password);
             submitButton.Click();
             Thread.Sleep(500);
-            Log("Login sequence completed");
+            Logging.Instance.Log("Login sequence completed");
         }
 
 
-        public void DownloadGroupData(GroupLookupData lookup)
+        internal void DownloadGroupData(GroupLookupData lookup)
         {
             try
             {
@@ -87,60 +69,41 @@ namespace LoadConsentToGo
             }
             catch (Exception ex)
             {
-                Log($"Exception {ex.Message}");
+                Logging.Instance.Log($"Exception {ex.Message}");
             }
         }
 
-        public void OpenGroup(GroupLookupData lookup)
+        internal void OpenGroup(GroupLookupData lookup)
         {
-
-
             var url = $"https://www.mcbschools.com/DuplicateIndex?Id={lookup.Consent2GoOrgId}";
             driver.Navigate().GoToUrl(url);
-            Log($"Navigated to {url}");
+            Logging.Instance.Log($"Navigated to {url}");
             Thread.Sleep(2000);
         }
 
-        static int frmTop = 500;
-        static int frmLeft = 1000;
+        internal static int frmTop = 500;
+        internal static int frmLeft = 1000;
 
-        public void Process(C2GDownload smsdata, int cnt)
+        internal void Process(C2GData smsdata, int cnt)
         {
-            Log($"Process start: {smsdata?.FirstName} {smsdata?.LastName} Site:{smsdata?.SiteUniqueIdentifier} Count:{cnt}");
+            if (smsdata == null)
+            {
+                Logging.Instance.Log($"smsdata is null");
+                return;
+            }
+
+            Logging.Instance.Log($"Process start: {smsdata?.FirstName} {smsdata?.LastName} Site:{smsdata?.SiteUniqueIdentifier} Count:{cnt}");
 
             emailcounter++;
 
-            CheckExists(smsdata, cnt);
+            if (CheckExists(smsdata, cnt)) return;
 
-
-            //    var alreadyexists = MessageBox.Show($"{cnt} Does {smsdata.FirstName} {smsdata.LastName} of {lookup.FormationName} already exist?", "Exists?", MessageBoxButtons.YesNo);
-            //Log($"CheckExists result: {(alreadyexists == DialogResult.Yes)}");
-            //return (alreadyexists == DialogResult.Yes);
-            //{
-            Log($"CheckExists returned true for {smsdata.FirstName} {smsdata.LastName}");
-            var frm = new FormSMSData();
-            frm.LoadSMSData(smsdata);
-
-            // 1. Tell Windows Forms you want to set the coordinates manually
-            // frm.StartPosition = FormStartPosition.Manual;
-
-            // 2. Set the X and Y coordinates (in pixels) from the top-left of the screen
-            //frm.Location = new Point(3000, 600);
-            frm.Top = frmTop;
-            frm.Left = frmLeft;
-
-            var rslt = frm.ShowDialog();
-
-            frmTop = frm.Top;
-            frmLeft = frm.Left;
-
-            if (rslt == DialogResult.OK) return;
-            //}
+            //Otherwise add the record
 
             Thread.Sleep(2000);
 
             driver.Navigate().GoToUrl("https://www.mcbschools.com/School/AddEditPlayer");
-            Log("Navigated to AddEditPlayer form");
+            Logging.Instance.Log("Navigated to AddEditPlayer form");
 
             driver.FindElement(By.Id("txtFirstName")).SendKeys(smsdata.FirstName);
             driver.FindElement(By.Id("txtLastName")).SendKeys(smsdata.LastName);
@@ -205,7 +168,7 @@ namespace LoadConsentToGo
             }
 
             driver.FindElement(By.Id("txtEmail")).SendKeys(email);
-            Log($"Email set to {email}");
+            Logging.Instance.Log($"Email set to {email}");
 
             driver.FindElement(By.Id("ddlSchoolYear")).SendKeys(smsdata.SchoolYear);
 
@@ -228,29 +191,74 @@ namespace LoadConsentToGo
             driver.FindElement(By.Id("txtGuardianMobileNumber")).SendKeys(smsdata.Guardian1MobileNumber);
             driver.FindElement(By.Id("txtGuardianEmail")).SendKeys(smsdata.Guardian1Email);
 
-            var commit = MessageBox.Show($"Ok to Commit {smsdata.FirstName} {smsdata.LastName} of {smsdata.Grouplookup.FormationName}", "Exists?", MessageBoxButtons.YesNo);
+            var commit = MessageBox.Show($"Ok to Commit {smsdata.FirstName} {smsdata.LastName} of {smsdata?.Grouplookup?.FormationName}", "Exists?", MessageBoxButtons.YesNo);
 
             if (commit == DialogResult.Yes)
             {
                 driver.FindElement(By.Id("btnSave")).Click();
-                Log("Member committed by user confirmation");
+                Logging.Instance.Log("Member committed by user confirmation");
                 Console.Write("Member Committed");
             }
 
-            Log($"Process finished for {smsdata.FirstName} {smsdata.LastName}");
+            Logging.Instance.Log($"Process finished for {smsdata?.FirstName} {smsdata?.LastName}");
         }
 
-        public void CheckExists(C2GDownload smsdata, int cnt)
+        internal bool CheckExists(C2GData smsdata, int cnt)
         {
-            Log($"CheckExists: Searching for {smsdata.FirstName} {smsdata.LastName} (count {cnt}) in {smsdata.Grouplookup?.FormationName}");
-            driver.Navigate().GoToUrl("https://www.mcbschools.com/School/Player");
+            Logging.Instance.Log($"CheckExists: Searching for {smsdata.FirstName} {smsdata.LastName} (count {cnt}) in {smsdata.Grouplookup?.FormationName}");
 
+            driver.Navigate().GoToUrl("https://www.mcbschools.com/School/Player");
             driver.FindElement(By.Id("txtSearch")).SendKeys(smsdata.LastName);
 
             var searchicon = driver.FindElement(By.CssSelector(".fa-search"));
             IJavaScriptExecutor executor = (IJavaScriptExecutor)driver;
             executor.ExecuteScript("arguments[0].click();", searchicon);
-            Log("Search icon clicked");
+            Logging.Instance.Log("Search icon clicked");
+
+            var frm = new FormSMSData();
+            frm.LoadSMSData(smsdata);
+
+            frm.StartPosition = FormStartPosition.Manual;
+            frm.Location = new Point(frmLeft, frmTop);
+            var rslt = frm.ShowDialog();
+
+            frmTop = frm.Top;
+            frmLeft = frm.Left;
+
+            return rslt == DialogResult.Yes;
+        }
+
+
+        internal void LoadConsentToGo(List<C2GData> datatoload)
+        {
+            var grpbysmsdata = datatoload.GroupBy(x => x.SiteUniqueIdentifier);
+
+            int cnt = 0;
+            foreach (var formationdata in grpbysmsdata)
+            {
+                var formationlookup = formationdata.FirstOrDefault()?.Grouplookup;
+                if (formationlookup != null)
+                {
+                    Logging.Instance.Log($"{formationlookup.FormationName}");
+                    OpenGroup(formationlookup);
+
+                    foreach (var item in formationdata.OrderBy(x => x.LastName))
+                    {
+                        try
+                        {
+                            cnt++;
+                            Logging.Instance.Log($"Processing {cnt}/ {datatoload.Count} {item}");
+                            Process(item, cnt);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logging.Instance.Log(ex.ToString(), true);
+                        }
+                    }
+
+                    DownloadGroupData(formationlookup);
+                }
+            }
         }
     }
 }
