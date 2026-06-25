@@ -104,7 +104,7 @@ namespace LoadConsentToGo
         static int frmTop = 500;
         static int frmLeft = 1000;
 
-        public void Process(SMSData smsdata, int cnt)
+        public void Process(C2GDownload smsdata, int cnt)
         {
             Log($"Process start: {smsdata?.FirstName} {smsdata?.LastName} Site:{smsdata?.SiteUniqueIdentifier} Count:{cnt}");
 
@@ -145,7 +145,7 @@ namespace LoadConsentToGo
             driver.FindElement(By.Id("txtFirstName")).SendKeys(smsdata.FirstName);
             driver.FindElement(By.Id("txtLastName")).SendKeys(smsdata.LastName);
             driver.FindElement(By.Id("ddlTitle")).SendKeys(smsdata.Title);
-            driver.FindElement(By.Id("txtBirthDate")).SendKeys(smsdata.DateofBirth);
+            driver.FindElement(By.Id("txtBirthDate")).SendKeys(smsdata.BirthDate);
             driver.FindElement(By.Id("txtRegistration")).SendKeys(smsdata.UniqueIdentifier);
 
             var email = smsdata.Email;
@@ -240,7 +240,7 @@ namespace LoadConsentToGo
             Log($"Process finished for {smsdata.FirstName} {smsdata.LastName}");
         }
 
-        public void CheckExists(SMSData smsdata, int cnt)
+        public void CheckExists(C2GDownload smsdata, int cnt)
         {
             Log($"CheckExists: Searching for {smsdata.FirstName} {smsdata.LastName} (count {cnt}) in {smsdata.Grouplookup?.FormationName}");
             driver.Navigate().GoToUrl("https://www.mcbschools.com/School/Player");

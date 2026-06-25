@@ -10,9 +10,9 @@ namespace LoadConsentToGo
 {
     internal class LoadSMSData
     {
-        public static List<SMSData> Load(string filePath)
+        public static List<C2GDownload> Load(string filePath)
         {
-            var smsDataList = new List<SMSData>();
+            var smsDataList = new List<C2GDownload>();
 
 
             // Load SMS CSV data
@@ -21,7 +21,7 @@ namespace LoadConsentToGo
 
             foreach (var line in csvData)
             {
-                var smsdata = new SMSData();
+                var smsdata = new C2GDownload();
                 var fields = line.Split(',');
 
                 smsdata.Title = Clean(fields[0]);
@@ -33,8 +33,8 @@ namespace LoadConsentToGo
                 smsdata.LastName = Clean(fields[2]);
                 if (i == 0 && smsdata.LastName != "lastname") throw new Exception($"{smsdata.LastName} != 'lastname'");
 
-                smsdata.DateofBirth = Clean(fields[3]);
-                if (i == 0 && smsdata.DateofBirth != "dateofbirth") throw new Exception($"{smsdata.DateofBirth} != 'dateofbirth'");
+                smsdata.BirthDate = Clean(fields[3]);
+                if (i == 0 && smsdata.BirthDate != "dateofbirth") throw new Exception($"{smsdata.BirthDate} != 'dateofbirth'");
 
                 smsdata.Gender = Clean(fields[4]);
                 if (i == 0 && smsdata.Gender != "gender") throw new Exception($"{smsdata.Gender} != 'gender'");

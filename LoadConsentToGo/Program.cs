@@ -6,10 +6,13 @@ namespace LoadConsentToGo
 {
     internal static class Program
     {
+        static Consent2GoFunctions c = new();
+
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
         [STAThread]
+
         static void Main()
         {
             // To customize application configuration such as set high DPI settings or default font,
@@ -53,7 +56,7 @@ namespace LoadConsentToGo
 
             var grouplookup = GroupLookupLoadData.Load("GroupLookup.json");
 
-            GroupLookupLoadData.WriteToCSV(grouplookup,  Path.Combine( Consent2GoFunctions.consent2gopathlookup, "consent2golookup.csv"));
+            GroupLookupLoadData.WriteToCSV(grouplookup, Path.Combine(Consent2GoFunctions.consent2gopathlookup, "consent2golookup.csv"));
 
             var path = Path.Combine(Consent2GoFunctions.consent2gopathdatabase, @"consent2go.db");
             var sqlLiteWrapper = new SqlLiteWrapper(path);
@@ -75,6 +78,30 @@ namespace LoadConsentToGo
 
                 case "upload":
                     {
+
+                        var baselinedata = sqlLiteWrapper.GetData();
+
+                        //string brownseasmslookupkey = "102231";
+
+                        //string[] brownseaparticipants = {"281983",
+                        //                "247377",
+                        //                "333278",
+                        //                "275885",
+                        //                "244775",
+                        //                "281018",
+                        //                "279802",
+                        //                "306509",
+                        //                "321764",
+                        //                "256965",
+                        //                "249264" };
+
+                        //var datatoload = baselinedata.Where(x => brownseaparticipants.Contains(x.UniqueIdentifier)).ToList();
+                        //foreach (var itm in datatoload)
+                        //{
+                        //    itm.SiteUniqueIdentifier = brownseasmslookupkey;
+                        //}
+
+
                         var openFileDialog = new OpenFileDialog
                         {
                             Filter = "CSV Files | *.csv",
@@ -90,63 +117,66 @@ namespace LoadConsentToGo
                             return;
                         }
 
-                        var c = new Consent2GoFunctions();
+                        var smsdata = LoadSMSData.Load(openFileDialog.FileName);
+
+                        var datatoload = (from f in smsdata
+                                          where !baselinedata.Select(x => x.UniqueIdentifier).Contains(f.UniqueIdentifier)
+                                                        select f).ToList();
+
                         c.Open();
                         c.Login(config.Consent2GoUsername, config.Consent2GoPassword);
 
-                        var smsdata = LoadSMSData.Load(openFileDialog.FileName);
-                        var baselinedata = sqlLiteWrapper.GetData();
-
-                        var cnt = 0;
-
-
-
-                        var excludedatalareadyloaded = (from f in smsdata
-                                     where !baselinedata.Select(x=> x.UniqueIdentifier).Contains(f.UniqueIdentifier)
-                                     select f).ToList();
-
-
-                        var grpbysmsdata = excludedatalareadyloaded.GroupBy(x => x.SiteUniqueIdentifier);
-
-                        
-                        foreach (var formationdata in grpbysmsdata)
+                        foreach (var itm in datatoload)
                         {
-                            var formationlookup = grouplookup.Where(x => x.SMSOrgId == formationdata.Key).FirstOrDefault();
+                            var formationlookup = grouplookup.Where(x => x.SMSOrgId == itm.SiteUniqueIdentifier).FirstOrDefault();
 
                             if (formationlookup == null)
                             {
-                                Console.WriteLine($"No lookup found for {formationdata.Key}");
+                                Console.WriteLine($"No lookup found for {itm.SiteUniqueIdentifier}");
                                 continue;
                             }
-
-                            Console.WriteLine($"{formationlookup.FormationName}");
-                            c.OpenGroup(formationlookup);
-
-     
-                            foreach (var item in formationdata.OrderBy(x => x.LastName))
-                            {
-                                item.Grouplookup = formationlookup;
-
-                                try
-                                {
-                                    cnt++;
-                                    Console.WriteLine($"Processing {cnt}/ {excludedatalareadyloaded.Count} {item}");
-                                    c.Process(item, cnt);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine(ex.ToString());
-                                }
-                            }
-
-                            c.DownloadGroupData(formationlookup);
+                            itm.Grouplookup = formationlookup;
                         }
 
+                        LoadConsentToGo(datatoload);
                         break;
                     }
             }
 
             MessageBox.Show("Finished", "Finished", MessageBoxButtons.OK);
+        }
+
+
+        static void LoadConsentToGo(List<C2GDownload> datatoload)
+        {
+            var grpbysmsdata = datatoload.GroupBy(x => x.SiteUniqueIdentifier);
+
+            int cnt = 0;
+            foreach (var formationdata in grpbysmsdata)
+            {
+                var formationlookup = formationdata.FirstOrDefault()?.Grouplookup;
+                if (formationlookup != null)
+                {
+                    Console.WriteLine($"{formationlookup.FormationName}");
+                    c.OpenGroup(formationlookup);
+
+                    foreach (var item in formationdata.OrderBy(x => x.LastName))
+                    {
+                        try
+                        {
+                            cnt++;
+                            Console.WriteLine($"Processing {cnt}/ {datatoload.Count} {item}");
+                            c.Process(item, cnt);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                        }
+                    }
+                }
+
+                c.DownloadGroupData(formationlookup);
+            }
         }
     }
 }

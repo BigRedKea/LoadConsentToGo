@@ -19,7 +19,7 @@ namespace LoadConsentToGo
             DialogResult = DialogResult.OK;
         }
 
-        internal void LoadSMSData(SMSData smsdata)
+        internal void LoadSMSData(C2GDownload smsdata)
         {
             txtGroup.Text = smsdata.Grouplookup?.FormationName;
             txtFirstName.Text = smsdata.FirstName;
