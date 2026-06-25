@@ -28,20 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-            btnDownload = new Button();
             btnUpload = new Button();
             btnExcelToSqlLite = new Button();
             SuspendLayout();
-            // 
-            // btnDownload
-            // 
-            btnDownload.Location = new Point(244, 157);
-            btnDownload.Name = "btnDownload";
-            btnDownload.Size = new Size(602, 201);
-            btnDownload.TabIndex = 0;
-            btnDownload.Text = "Download Consent2Go Data";
-            btnDownload.UseVisualStyleBackColor = true;
-            btnDownload.Click += btnDownload_Click;
+
             // 
             // btnUpload
             // 
@@ -70,7 +60,6 @@
             ClientSize = new Size(1057, 1220);
             Controls.Add(btnExcelToSqlLite);
             Controls.Add(btnUpload);
-            Controls.Add(btnDownload);
             Name = "FormMain";
             Text = "FormMain";
             ResumeLayout(false);
@@ -78,7 +67,6 @@
 
         #endregion
 
-        private Button btnDownload;
         private Button btnUpload;
         private Button btnExcelToSqlLite;
     }

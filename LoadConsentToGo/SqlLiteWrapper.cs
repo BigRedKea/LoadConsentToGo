@@ -140,7 +140,7 @@ namespace LoadConsentToGo
             {
                 if (!existingData.Any(x => x.UniqueIdentifier == c2g.UniqueIdentifier))
                 {
-
+                    Insert(c2g);   
                     insertedCount++;
                 }
             }

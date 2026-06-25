@@ -26,12 +26,6 @@ namespace LoadConsentToGo
             Close();
         }
 
-        private void btnDownload_Click(object sender, EventArgs e)
-        {
-            FormAction = "download";
-            Close();
-        }
-
         private void btnExcelToSqlLite_Click(object sender, EventArgs e)
         {
             FormAction = "baseline";

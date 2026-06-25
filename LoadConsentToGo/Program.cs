@@ -51,9 +51,9 @@ namespace LoadConsentToGo
                 return;
             }
 
-            var lookup = GroupLookupLoadData.Load("GroupLookup.json");
+            var grouplookup = GroupLookupLoadData.Load("GroupLookup.json");
 
-            GroupLookupLoadData.WriteToCSV(lookup,  Path.Combine( Consent2GoFunctions.consent2gopathlookup, "consent2golookup.csv"));
+            GroupLookupLoadData.WriteToCSV(grouplookup,  Path.Combine( Consent2GoFunctions.consent2gopathlookup, "consent2golookup.csv"));
 
             var path = Path.Combine(Consent2GoFunctions.consent2gopathdatabase, @"consent2go.db");
             var sqlLiteWrapper = new SqlLiteWrapper(path);
@@ -61,18 +61,12 @@ namespace LoadConsentToGo
 
             switch (action)
             {
-                case "download":
-                    {
-                        var c = new Consent2GoFunctions();
-                        c.Open();
-                        c.Login(config.Consent2GoUsername, config.Consent2GoPassword);
-                        c.DownloadGroupData(lookup);
-                        break;
-                    }
 
                 case "baseline":
                     {
                         // Pull data from Excel Downloads
+                        //255331
+
                         var mergeddata = MergeExcelData.Execute();
                         var x = sqlLiteWrapper.Upsert(mergeddata);
                         Console.WriteLine($"Merged {x} items from {mergeddata.Count} records from Excel files");
@@ -104,23 +98,48 @@ namespace LoadConsentToGo
                         var baselinedata = sqlLiteWrapper.GetData();
 
                         var cnt = 0;
-                        
 
-                        foreach (var item in smsdata.OrderBy(x => x.LastName))
+
+
+                        var excludedatalareadyloaded = (from f in smsdata
+                                     where !baselinedata.Select(x=> x.UniqueIdentifier).Contains(f.UniqueIdentifier)
+                                     select f).ToList();
+
+
+                        var grpbysmsdata = excludedatalareadyloaded.GroupBy(x => x.SiteUniqueIdentifier);
+
+                        
+                        foreach (var formationdata in grpbysmsdata)
                         {
-                            if (baselinedata.Any(x => x.UniqueIdentifier == item.UniqueIdentifier))
+                            var formationlookup = grouplookup.Where(x => x.SMSOrgId == formationdata.Key).FirstOrDefault();
+
+                            if (formationlookup == null)
                             {
-                                Console.WriteLine($"Skipping {item} as it exists in baseline data");
+                                Console.WriteLine($"No lookup found for {formationdata.Key}");
                                 continue;
                             }
-                            try
+
+                            Console.WriteLine($"{formationlookup.FormationName}");
+                            c.OpenGroup(formationlookup);
+
+     
+                            foreach (var item in formationdata.OrderBy(x => x.LastName))
                             {
-                                Console.WriteLine($"Processing {cnt}/ {smsdata.Count} {item}");
-                                c.Process(item, lookup, cnt);
-                            } catch (Exception ex)
-                            {
-                                Console.WriteLine(ex.ToString());
+                                item.Grouplookup = formationlookup;
+
+                                try
+                                {
+                                    cnt++;
+                                    Console.WriteLine($"Processing {cnt}/ {excludedatalareadyloaded.Count} {item}");
+                                    c.Process(item, cnt);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine(ex.ToString());
+                                }
                             }
+
+                            c.DownloadGroupData(formationlookup);
                         }
 
                         break;
@@ -128,7 +147,6 @@ namespace LoadConsentToGo
             }
 
             MessageBox.Show("Finished", "Finished", MessageBoxButtons.OK);
-
         }
     }
 }

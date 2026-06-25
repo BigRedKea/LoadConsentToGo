@@ -1,5 +1,6 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using System.Security.Policy;
 //using OpenQA.Selenium.DevTools.V145.Audits;
 
 namespace LoadConsentToGo
@@ -11,9 +12,9 @@ namespace LoadConsentToGo
 
         public static string profilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).ToString();
 
-        public static string consent2gopath = Path.Combine(profilePath, @"OneDrive - Scouts Queensland", "SO Admin - Consent2Go", "Automated Upload");
+        public static string consent2gopath = Path.Combine(profilePath, @"Scouts Queensland", "SO Admin - Consent2Go", "Automated Upload");
         public static string consent2gopathupload = Path.Combine(consent2gopath, "Uploads");
-        public static string consent2gopathuploadlog = Path.Combine(consent2gopathupload, "Log");
+        public static string consent2gopathuploadlog = Path.Combine(consent2gopathupload, "Logs");
         public static string consent2gopathupdownloads = Path.Combine(consent2gopathupload, "Downloads");
 
         private string LogFilePath = Path.Combine(consent2gopathuploadlog, $"consent2golog{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}.log");
@@ -28,7 +29,7 @@ namespace LoadConsentToGo
             Log("Consent2GoFunctions initialized");
         }
 
-        private void Log(string message)
+        public void Log(string message)
         {
             try
             {
@@ -68,70 +69,48 @@ namespace LoadConsentToGo
         }
 
 
-        public void DownloadGroupData(List<GroupLookupData> GroupLookup)
+        public void DownloadGroupData(GroupLookupData lookup)
         {
-            var cnt = 0;
-            foreach (var lookup in GroupLookup)
+            try
             {
-                try
-                {
-                    var url = ($"https://www.mcbschools.com/DuplicateIndex?Id={lookup.Consent2GoOrgId}");
-                    driver.Navigate().GoToUrl(url);
-                    Log($"Navigated to {url}");
+                OpenGroup(lookup);
+                driver.Navigate().GoToUrl("https://www.mcbschools.com/School/Player");
 
-                    Thread.Sleep(2000);
-                    driver.Navigate().GoToUrl("https://www.mcbschools.com/School/Player");
-
-                   
-                    Console.WriteLine($"{lookup.FormationName} {cnt++} / {GroupLookup.Count()}");
-
-                    Thread.Sleep(1000);
-                    driver.FindElement(By.ClassName("btn-secondary")).Click();
-                    Thread.Sleep(1000);
-                    driver.FindElement(By.LinkText("Export to Excel")).Click();
-                    Thread.Sleep(1000);
-                    driver.FindElement(By.Id("btnSelectAllColumns")).Click();
-                    Thread.Sleep(1000);
-                    driver.FindElement(By.Id("btnReport_Player")).Click();
-                }
-                catch (Exception ex)
-                {
-                    Log($"Exception {ex.Message}");
-                }
-
+                Thread.Sleep(3000);
+                driver.FindElement(By.ClassName("btn-secondary")).Click();
+                Thread.Sleep(1000);
+                driver.FindElement(By.LinkText("Export to Excel")).Click();
+                Thread.Sleep(1000);
+                driver.FindElement(By.Id("btnSelectAllColumns")).Click();
+                Thread.Sleep(1000);
+                driver.FindElement(By.Id("btnReport_Player")).Click();
+            }
+            catch (Exception ex)
+            {
+                Log($"Exception {ex.Message}");
             }
         }
 
-        public void Process(SMSData smsdata, List<GroupLookupData> GroupLookup, int cnt)
+        public void OpenGroup(GroupLookupData lookup)
         {
-            Log($"Process start: {smsdata?.FirstName} {smsdata?.LastName} Site:{smsdata?.SiteUniqueIdentifier} Count:{cnt}");
 
-            if (string.IsNullOrEmpty(smsdata.SiteUniqueIdentifier))
-            {
-                Log("No unique identifier found");
-                Console.WriteLine($"No unique identifier found ");
-                return;
-            }
 
-            var lookup = GroupLookup.Where(x => x.SMSOrgId == smsdata.SiteUniqueIdentifier).FirstOrDefault();
-
-            if (lookup == null)
-            {
-                Log($"No lookup found for {smsdata.SiteUniqueIdentifier}");
-                Console.WriteLine($"No lookup found for {smsdata.SiteUniqueIdentifier}");
-                return;
-            }
-
-            smsdata.Grouplookup = lookup;
-
-            emailcounter++;
-
-            var url = ($"https://www.mcbschools.com/DuplicateIndex?Id={lookup.Consent2GoOrgId}");
+            var url = $"https://www.mcbschools.com/DuplicateIndex?Id={lookup.Consent2GoOrgId}";
             driver.Navigate().GoToUrl(url);
             Log($"Navigated to {url}");
             Thread.Sleep(2000);
+        }
 
-            CheckExists(smsdata, lookup, cnt);
+        static int frmTop = 500;
+        static int frmLeft = 1000;
+
+        public void Process(SMSData smsdata, int cnt)
+        {
+            Log($"Process start: {smsdata?.FirstName} {smsdata?.LastName} Site:{smsdata?.SiteUniqueIdentifier} Count:{cnt}");
+
+            emailcounter++;
+
+            CheckExists(smsdata, cnt);
 
 
             //    var alreadyexists = MessageBox.Show($"{cnt} Does {smsdata.FirstName} {smsdata.LastName} of {lookup.FormationName} already exist?", "Exists?", MessageBoxButtons.YesNo);
@@ -143,12 +122,17 @@ namespace LoadConsentToGo
             frm.LoadSMSData(smsdata);
 
             // 1. Tell Windows Forms you want to set the coordinates manually
-            frm.StartPosition = FormStartPosition.Manual;
+            // frm.StartPosition = FormStartPosition.Manual;
 
             // 2. Set the X and Y coordinates (in pixels) from the top-left of the screen
-            frm.Location = new Point(3000, 600);
+            //frm.Location = new Point(3000, 600);
+            frm.Top = frmTop;
+            frm.Left = frmLeft;
 
             var rslt = frm.ShowDialog();
+
+            frmTop = frm.Top;
+            frmLeft = frm.Left;
 
             if (rslt == DialogResult.OK) return;
             //}
@@ -244,7 +228,7 @@ namespace LoadConsentToGo
             driver.FindElement(By.Id("txtGuardianMobileNumber")).SendKeys(smsdata.Guardian1MobileNumber);
             driver.FindElement(By.Id("txtGuardianEmail")).SendKeys(smsdata.Guardian1Email);
 
-            var commit = MessageBox.Show($"Ok to Commit {smsdata.FirstName} {smsdata.LastName} of {lookup.FormationName}", "Exists?", MessageBoxButtons.YesNo);
+            var commit = MessageBox.Show($"Ok to Commit {smsdata.FirstName} {smsdata.LastName} of {smsdata.Grouplookup.FormationName}", "Exists?", MessageBoxButtons.YesNo);
 
             if (commit == DialogResult.Yes)
             {
@@ -256,9 +240,9 @@ namespace LoadConsentToGo
             Log($"Process finished for {smsdata.FirstName} {smsdata.LastName}");
         }
 
-        public void CheckExists(SMSData smsdata, GroupLookupData lookup, int cnt)
+        public void CheckExists(SMSData smsdata, int cnt)
         {
-            Log($"CheckExists: Searching for {smsdata.FirstName} {smsdata.LastName} (count {cnt}) in {lookup?.FormationName}");
+            Log($"CheckExists: Searching for {smsdata.FirstName} {smsdata.LastName} (count {cnt}) in {smsdata.Grouplookup?.FormationName}");
             driver.Navigate().GoToUrl("https://www.mcbschools.com/School/Player");
 
             driver.FindElement(By.Id("txtSearch")).SendKeys(smsdata.LastName);

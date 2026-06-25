@@ -206,22 +206,22 @@
   },
   {
     "Consent2GoOrgId": "875312",
-    "SMSOrgId": "Childers",
+    "SMSOrgId": "10144",
     "FormationName": "Childers Scout Group"
   },
   {
     "Consent2GoOrgId": "875313",
-    "SMSOrgId": "Cooroy",
+    "SMSOrgId": "10149",
     "FormationName": "Cooroy Scout Group"
   },
   {
     "Consent2GoOrgId": "875314",
-    "SMSOrgId": "Caloundra",
+    "SMSOrgId": "10151",
     "FormationName": "Caloundra Scout Group"
   },
   {
     "Consent2GoOrgId": "875315",
-    "SMSOrgId": "Coomera",
+    "SMSOrgId": "10154",
     "FormationName": "Coomera Scout Group"
   },
   {
@@ -233,6 +233,11 @@
     "Consent2GoOrgId": "875317",
     "SMSOrgId": "10167",
     "FormationName": "Everton Park Scout Group"
+  },
+  {
+    "Consent2GoOrgId": "875477",
+    "SMSOrgId": "10542",
+    "FormationName": "Yeppoon Group"
   },
   {
     "Consent2GoOrgId": "875318",
