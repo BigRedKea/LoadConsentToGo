@@ -81,19 +81,30 @@ namespace LoadConsentToGo
 
                         var baselinedata = sqlLiteWrapper.GetData();
 
-                        //string brownseasmslookupkey = "102231";
+                        string brownseasmslookupkey = "102231";
 
-                        //string[] brownseaparticipants = {"281983",
-                        //                "247377",
-                        //                "333278",
-                        //                "275885",
-                        //                "244775",
-                        //                "281018",
-                        //                "279802",
-                        //                "306509",
-                        //                "321764",
-                        //                "256965",
-                        //                "249264" };
+                        //string[] brownseaparticipants =
+                        //      { "293644",
+                        //        "333278",
+                        //        "281018",
+                        //        "306509",
+                        //        "281983",
+                        //        "275885",
+                        //        "286540",
+                        //        "247377",
+                        //        "283160",
+                        //        "244775",
+                        //        "202402",
+                        //        "214570",
+                        //        "256965",
+                        //        "224265",
+                        //        "252535",
+                        //        "249264",
+                        //        "321764",
+                        //        "184584",
+                        //        "279802",
+                        //        "224265" };
+
 
                         //var datatoload = baselinedata.Where(x => brownseaparticipants.Contains(x.UniqueIdentifier)).ToList();
                         //foreach (var itm in datatoload)
@@ -121,7 +132,7 @@ namespace LoadConsentToGo
 
                         var datatoload = (from f in smsdata
                                           where !baselinedata.Select(x => x.UniqueIdentifier).Contains(f.UniqueIdentifier)
-                                                        select f).ToList();
+                                          select f).ToList();
 
                         c.Open();
                         c.Login(config.Consent2GoUsername, config.Consent2GoPassword);
