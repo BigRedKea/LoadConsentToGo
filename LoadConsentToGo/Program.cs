@@ -287,7 +287,6 @@ namespace LoadConsentToGo
                     }
                 }
 
-
                 c.DownloadStudentGroupData(formationlookup);
 
             }
