@@ -4,13 +4,13 @@ using Microsoft.Data.Sqlite;
 namespace LoadConsentToGo
 {
 
-    public class SqlLiteWrapper : IDisposable
+    public class SqlLiteWrapperStudentProfile : IDisposable
     {
 
         private readonly SqliteConnection connection;
         private bool disposedValue;
 
-        internal SqlLiteWrapper(string dbfilepath)
+        internal SqlLiteWrapperStudentProfile(string dbfilepath)
         {
             string connectionString = $"Data Source={dbfilepath};";
             connection = new SqliteConnection(connectionString);
@@ -124,7 +124,7 @@ namespace LoadConsentToGo
             createCommand.ExecuteNonQuery();
         }
 
-        internal int Upsert(List<C2GData> c2gdata)
+        internal int Upsert(List<StudentData> c2gdata)
         {
             var insertedCount = 0;
             CreateTable(connection);
@@ -142,7 +142,7 @@ namespace LoadConsentToGo
             return insertedCount;
         }
 
-        internal void Insert(C2GData c2g)
+        internal void Insert(StudentData c2g)
         {
 
             // Data doesn't have this record adding it.
@@ -465,10 +465,10 @@ namespace LoadConsentToGo
             command.Parameters.Add(parameter);
         }
 
-        internal List<C2GData> GetData()
+        internal List<StudentData> GetData()
         {
             string sql = "SELECT * FROM Consent2GoProfiles";
-            var existingdata = new List<C2GData>();
+            var existingdata = new List<StudentData>();
             using var command = new SqliteCommand(sql, connection);
 
             // Execute the reader to get a forward-only stream of rows
@@ -479,7 +479,7 @@ namespace LoadConsentToGo
             while (reader.Read())
             {
                 // Use attribute-based mapping to avoid manual name typos
-                var c2g = DbMapper.MapRowTo<C2GData>(reader);
+                var c2g = DbMapper.MapRowTo<StudentData>(reader);
                 existingdata.Add(c2g);
             }
 

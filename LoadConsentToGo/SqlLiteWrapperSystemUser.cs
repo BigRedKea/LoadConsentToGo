@@ -124,10 +124,10 @@ namespace LoadConsentToGo
             command.Parameters.Add(parameter);
         }
 
-        internal List<C2GDownload> GetData()
+        internal List<StudentData> GetData()
         {
             string sql = "SELECT * FROM Consent2GoProfiles";
-            var existingdata = new List<C2GDownload>();
+            var existingdata = new List<StudentData>();
             using var command = new SqliteCommand(sql, connection);
 
             // Execute the reader to get a forward-only stream of rows
@@ -138,7 +138,7 @@ namespace LoadConsentToGo
             while (reader.Read())
             {
                 // Use attribute-based mapping to avoid manual name typos
-                var c2g = DbMapper.MapRowTo<C2GDownload>(reader);
+                var c2g = DbMapper.MapRowTo<StudentData>(reader);
                 existingdata.Add(c2g);
             }
 

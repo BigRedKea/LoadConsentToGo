@@ -4,10 +4,10 @@ namespace LoadConsentToGo
 {
     internal class MergeExcelStudentData
     {
-        public static List<C2GData> Execute()
+        public static List<StudentData> Execute()
         {
 
-            var result = new List<C2GData>();
+            var result = new List<StudentData>();
             var openFileDialog = new FolderBrowserDialog()
             {
                 Description = "Select the directory containing the xlsx files to merge",
@@ -40,7 +40,7 @@ namespace LoadConsentToGo
 
                         if (rowcount > 0)
                         {
-                            var c2g = new C2GData();
+                            var c2g = new StudentData();
                             int c = 0;
                             c2g.UniqueIdentifier = reader.GetString(c++);
                             c2g.Title = reader.GetString(c++);

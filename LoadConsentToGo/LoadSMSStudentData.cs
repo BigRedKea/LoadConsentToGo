@@ -3,7 +3,7 @@ namespace LoadConsentToGo
 {
     internal class LoadSMSStudentData
     {
-        public static List<C2GData> Load()
+        public static List<StudentData> Load()
         {
             var openFileDialog = new OpenFileDialog
             {
@@ -23,9 +23,9 @@ namespace LoadConsentToGo
             return Load(openFileDialog.FileName);
         }
 
-        public static List<C2GData> Load(string filePath)
+        public static List<StudentData> Load(string filePath)
         {
-            var smsDataList = new List<C2GData>();
+            var smsDataList = new List<StudentData>();
 
 
             // Load SMS CSV data
@@ -34,7 +34,7 @@ namespace LoadConsentToGo
 
             foreach (var line in csvData)
             {
-                var smsdata = new C2GData();
+                var smsdata = new StudentData();
                 var fields = line.Split(',');
 
                 smsdata.Title = Clean(fields[0]);

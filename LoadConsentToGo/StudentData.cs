@@ -3,7 +3,7 @@
 namespace LoadConsentToGo
 {
 
-    internal class C2GData
+    internal class StudentData
     {
         [ColumnName("UniqueIdentifier")]
         public string? UniqueIdentifier { get; set; }
