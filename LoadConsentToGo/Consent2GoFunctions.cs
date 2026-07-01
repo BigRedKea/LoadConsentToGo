@@ -1,6 +1,8 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using System.Diagnostics;
 using System.Security.Policy;
+using static System.ComponentModel.Design.ObjectSelectorEditor;
 //using OpenQA.Selenium.DevTools.V145.Audits;
 
 namespace LoadConsentToGo
@@ -295,70 +297,123 @@ namespace LoadConsentToGo
             Log($"Process start: {smsdata?.FirstName} {smsdata?.LastName} Site:{smsdata?.SiteIdentifier} Count:{cnt}");
 
             emailcounter++;
-            driver.Navigate().GoToUrl("https://www.mcbschools.com/School/SystemUsers");
 
 
-
-            Log($"CheckExists: Searching for {smsdata.FirstName} {smsdata.LastName} (count {cnt}) in {smsdata.Grouplookup?.FormationName}");
-
-            driver.FindElement(By.Id("txtSearch")).SendKeys(smsdata.LastName);
-
-            //var searchicon = driver.FindElement(By.CssSelector(".fa-search"));
-            //IJavaScriptExecutor executor = (IJavaScriptExecutor)driver;
-            //driver.ExecuteScript("SearchUsers()");
-
-            var rslt = MessageBox.Show($"Create {smsdata.FirstName} {smsdata.LastName} in {smsdata.Grouplookup?.FormationName}", "Create", MessageBoxButtons.YesNo);
-
-
-            if (rslt == DialogResult.Yes) 
+            string role = "";
+            switch (smsdata.Role)
             {
-                driver.Navigate().GoToUrl("https://www.mcbschools.com/School/AddEditUsers");
-                Thread.Sleep(1000);
-                driver.FindElement(By.Id("txtFirstName")).SendKeys(smsdata.FirstName);
-                driver.FindElement(By.Id("txtLastName")).SendKeys(smsdata.LastName);
-                driver.FindElement(By.Id("txtEmail")).SendKeys(smsdata.Email);
-                driver.FindElement(By.Id("ddl_role")).SendKeys(smsdata.Role);
-                //driver.FindElement(By.Id("txtBirthDate")).SendKeys(smsdata.BirthDate);
-                //driver.FindElement(By.Id("txtRegistration")).SendKeys(smsdata.UniqueIdentifier);
+                //Activity Leader
+                //Adult Supporter
+                //Adult Supporter(Caretaker)
+                //Adult Supporter(Chair)
+                //Adult Supporter(Chairman)
+                //Adult Supporter(Committee)
+                //Adult Supporter(Secretary)
+                //Adult Supporter(Treasurer)
+                //Branch Commissioner(Environment and Sustainability)
 
-                driver.FindElement(By.Id("btnSave")).Click();
+                //District Leader(Joey Scouts)
+                //Region Activity Leader(Activities)
+                //Region Leader
+                //Rover Scout
+                //Member - Scout Fellowship
+
+
+                //SMS Access(Training Team)
+                //Staff(SO)
+
+                //Team Supporter
+
+
+                //case "Assistant Region Commissioner(Rover Scout Adviser)":
+
+                //case "Team Member":
+
+
+                case "Cub Scout Section":
+                case "Assistant Cub Scout Leader":
+                case "Cub Scout Leader":
+                    role = "Cub Scout Section";
+                    break;
+
+                case "Full System Administration":
+                    role = "Full System Administration";
+                    break;
+
+                case "Group Committee / Other Adults":
+                    role = "Group Committee / Other Adults";
+                    break;
+
+                case "Assistant Group Leader":
+                case "Group Leader":
+                case "Group Leader / LIC":
+                    role = "Group Leader / LIC";
+                    break;
+
+                case "Assistant Joey Scout Leader":
+                case "Joey Scout Leader":
+                case "Joey Scout Section":
+                    role = "Joey Scout Section";
+                    break;
+
+                case "Rover Scout Section":
+                    role = "Rover Scout Section";
+                    break;
+
+                case "Assistant Scout Leader":
+                case "Scout Leader":
+                case "Scout Section":
+                    role = "Scout Section";
+                    break;
+
+                case "Assistant Venturer Scout Leader":
+                case "Venturer Scout Leader":
+                case "Venturer Scout Section":
+                    role = "Venturer Scout Section";
+                    break;
+
+                default:
+                    Log($"{smsdata.Role} not found");
+                    break;
 
             }
-            //    var alreadyexists = MessageBox.Show($"{cnt} Does {smsdata.FirstName} {smsdata.LastName} of {lookup.FormationName} already exist?", "Exists?", MessageBoxButtons.YesNo);
-            //Log($"CheckExists result: {(alreadyexists == DialogResult.Yes)}");
-            //return (alreadyexists == DialogResult.Yes)
 
-            driver.Navigate().GoToUrl("https://www.mcbschools.com/School/AddEditPlayer");
-            //Log("Navigated to AddEditPlayer form");
+            if (!string.IsNullOrEmpty(role))
+            {
+                driver.Navigate().GoToUrl("https://www.mcbschools.com/School/SystemUsers");
 
-            //driver.FindElement(By.Id("txtFirstName")).SendKeys(smsdata.FirstName);
-            //driver.FindElement(By.Id("txtLastName")).SendKeys(smsdata.LastName);
-            //driver.FindElement(By.Id("ddlTitle")).SendKeys(smsdata.Title);
-            //driver.FindElement(By.Id("txtBirthDate")).SendKeys(smsdata.BirthDate);
-            //driver.FindElement(By.Id("txtRegistration")).SendKeys(smsdata.UniqueIdentifier);
+                Log($"CheckExists: Searching for {smsdata.FirstName} {smsdata.LastName} (count {cnt}) in {smsdata.Grouplookup?.FormationName}");
+
+                driver.FindElement(By.Id("txtSearch")).SendKeys(smsdata.LastName);
+                Thread.Sleep(1000);
+
+                var rslt = MessageBox.Show($"Create {smsdata.FirstName} {smsdata.LastName} in {smsdata.Grouplookup?.FormationName}", "Create", MessageBoxButtons.YesNo);
+
+                if (rslt == DialogResult.Yes)
+                {
+                    //var searchicon = driver.FindElement(By.CssSelector(".fa-search"));
+                    //IJavaScriptExecutor executor = (IJavaScriptExecutor)driver;
+                    //driver.ExecuteScript("SearchUsers()");
+                    Thread.Sleep(1000);
 
 
-            //driver.FindElement(By.Id("txtEmail")).SendKeys(email);
-            //Log($"Email set to {email}");
+                    driver.Navigate().GoToUrl("https://www.mcbschools.com/School/AddEditUsers");
+                    Thread.Sleep(1000);
+                    driver.FindElement(By.Id("txtFirstName")).SendKeys(smsdata.FirstName);
+                    driver.FindElement(By.Id("txtLastName")).SendKeys(smsdata.LastName);
+                    driver.FindElement(By.Id("txtEmail")).SendKeys(smsdata.Email);
+                    driver.FindElement(By.Id("ddl_role")).SendKeys(role);
 
-            //driver.FindElement(By.Id("ddlSchoolYear")).SendKeys(smsdata.SchoolYear);
+                    var rslt2 = MessageBox.Show($"Save {smsdata.FirstName} {smsdata.LastName} in {smsdata.Grouplookup?.FormationName}", "Create", MessageBoxButtons.YesNo);
 
-            //driver.FindElement(By.Id("liAdditionalDetails")).Click();
-            //driver.FindElement(By.Id("txtGuardianName")).SendKeys(smsdata.Guardian1FirstName);
-            //driver.FindElement(By.Id("txtGuardianLastName")).SendKeys(smsdata.Guardian1LastName);
-            //if (!string.IsNullOrEmpty(smsdata.Guardian1Title)) driver.FindElement(By.Id("ddlGuardianTitle")).SendKeys(smsdata.Guardian1Title);
-            //driver.FindElement(By.Id("txtGuardianMobileNumber")).SendKeys(smsdata.Guardian1MobileNumber);
-            //driver.FindElement(By.Id("txtGuardianEmail")).SendKeys(smsdata.Guardian1Email);
+                    if (rslt2 == DialogResult.Yes)
+                    {
+                        driver.FindElement(By.Id("btnSave")).Click();
+                    }
 
-            //var commit = MessageBox.Show($"Ok to Commit {smsdata.FirstName} {smsdata.LastName} of {smsdata.Grouplookup.FormationName}", "Exists?", MessageBoxButtons.YesNo);
+                }
 
-            //if (commit == DialogResult.Yes)
-            //{
-            //    driver.FindElement(By.Id("btnSave")).Click();
-            //    Log("Member committed by user confirmation");
-            //    Console.Write("Member Committed");
-            //}
-
+            }
             Log($"Process finished for {smsdata.FirstName} {smsdata.LastName}");
         }
 

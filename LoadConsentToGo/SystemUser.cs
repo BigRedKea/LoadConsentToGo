@@ -31,6 +31,11 @@ namespace LoadConsentToGo
 
         [ColumnName("SiteIdentifier")]
         public string? SiteIdentifier { get; set; }
-        public GroupLookupData Grouplookup { get; internal set; }
+        public GroupLookupData Grouplookup { get; set; }
+
+        public override string ToString()
+        {
+            return $"{FirstName} {LastName} {Role} {Email}";
+        }
     }
 }
