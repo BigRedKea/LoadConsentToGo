@@ -30,14 +30,16 @@
         {
             btnUpload = new Button();
             btnExcelToSqlLite = new Button();
+            staff_data_upload_button = new Button();
+            button1 = new Button();
             SuspendLayout();
-
             // 
             // btnUpload
             // 
-            btnUpload.Location = new Point(244, 735);
+            btnUpload.Location = new Point(10, 197);
+            btnUpload.Margin = new Padding(1);
             btnUpload.Name = "btnUpload";
-            btnUpload.Size = new Size(602, 201);
+            btnUpload.Size = new Size(166, 74);
             btnUpload.TabIndex = 1;
             btnUpload.Text = "Upload Consent2Go Data";
             btnUpload.UseVisualStyleBackColor = true;
@@ -45,21 +47,47 @@
             // 
             // btnExcelToSqlLite
             // 
-            btnExcelToSqlLite.Location = new Point(244, 447);
+            btnExcelToSqlLite.Location = new Point(10, 81);
+            btnExcelToSqlLite.Margin = new Padding(1);
             btnExcelToSqlLite.Name = "btnExcelToSqlLite";
-            btnExcelToSqlLite.Size = new Size(602, 201);
+            btnExcelToSqlLite.Size = new Size(166, 74);
             btnExcelToSqlLite.TabIndex = 2;
-            btnExcelToSqlLite.Text = "Excel to SqlLite";
+            btnExcelToSqlLite.Text = "Student Excel to SqlLite";
             btnExcelToSqlLite.UseVisualStyleBackColor = true;
             btnExcelToSqlLite.Click += btnExcelToSqlLite_Click;
             // 
+            // staff_data_upload_button
+            // 
+            staff_data_upload_button.Location = new Point(232, 81);
+            staff_data_upload_button.Margin = new Padding(1);
+            staff_data_upload_button.Name = "staff_data_upload_button";
+            staff_data_upload_button.Size = new Size(166, 74);
+            staff_data_upload_button.TabIndex = 3;
+            staff_data_upload_button.Text = "Staff Excel to SqlLite";
+            staff_data_upload_button.UseVisualStyleBackColor = true;
+            staff_data_upload_button.Click += staff_data_upload_button_Click;
+            // 
+            // button1
+            // 
+            button1.Location = new Point(232, 197);
+            button1.Margin = new Padding(1);
+            button1.Name = "button1";
+            button1.Size = new Size(166, 74);
+            button1.TabIndex = 4;
+            button1.Text = "Upload Staff Data";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
+            // 
             // FormMain
             // 
-            AutoScaleDimensions = new SizeF(17F, 41F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1057, 1220);
+            ClientSize = new Size(435, 446);
+            Controls.Add(button1);
+            Controls.Add(staff_data_upload_button);
             Controls.Add(btnExcelToSqlLite);
             Controls.Add(btnUpload);
+            Margin = new Padding(1);
             Name = "FormMain";
             Text = "FormMain";
             ResumeLayout(false);
@@ -69,5 +97,7 @@
 
         private Button btnUpload;
         private Button btnExcelToSqlLite;
+        private Button staff_data_upload_button;
+        private Button button1;
     }
 }

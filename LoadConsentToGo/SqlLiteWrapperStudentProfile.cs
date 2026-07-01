@@ -1,21 +1,18 @@
 ﻿
-using LoadConsentToGo;
-using Microsoft.Data.Sqlite;
-using OpenQA.Selenium.BiDi.Script;
-using OpenQA.Selenium.DevTools.V147.DOM; // Or System.Data.SQLite
 
+using Microsoft.Data.Sqlite;
 
 namespace LoadConsentToGo
 {
 
-    public class SqlLiteWrapper : IDisposable
+    public class SqlLiteWrapperStudentProfile : IDisposable
     {
 
         SqliteConnection connection;
         private bool disposedValue;
         private bool disposedValue1;
 
-        internal SqlLiteWrapper(string dbfilepath)
+        internal SqlLiteWrapperStudentProfile(string dbfilepath)
         {
             string connectionString = $"Data Source={dbfilepath};";
             connection = new SqliteConnection(connectionString);

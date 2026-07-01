@@ -69,7 +69,7 @@ namespace LoadConsentToGo
         }
 
 
-        public void DownloadGroupData(GroupLookupData lookup)
+        public void DownloadStudentGroupData(GroupLookupData lookup)
         {
             try
             {
@@ -84,12 +84,62 @@ namespace LoadConsentToGo
                 driver.FindElement(By.Id("btnSelectAllColumns")).Click();
                 Thread.Sleep(1000);
                 driver.FindElement(By.Id("btnReport_Player")).Click();
+                Thread.Sleep(1000);
+                RenameLatestFile("StudentList_*_UTC.xlsx", $"student_{lookup.FormationName}.xlsx");
             }
             catch (Exception ex)
             {
                 Log($"Exception {ex.Message}");
             }
         }
+
+        public void DownloadStaffGroupData(GroupLookupData lookup)
+        {
+            try
+            {
+                OpenGroup(lookup);
+                driver.Navigate().GoToUrl("https://www.mcbschools.com/School/SystemUsers");
+                driver.ExecuteScript("ExportToExcel()");
+                Thread.Sleep(2000);
+                RenameLatestFile("SystemUser*.xlsx", $"staff_{lookup.FormationName}.xlsx");
+            }
+            catch (Exception ex)
+            {
+                Log($"Exception {ex.Message}");
+            }
+        }
+
+
+        void RenameLatestFile(string serachpattern, string newFileName)
+        {
+            string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string downloadsPath = Path.Combine(userProfile, "Downloads");
+
+            var directory = new DirectoryInfo(downloadsPath);
+            if (!Directory.Exists(downloadsPath))
+            {
+                Log($"Downloads not located at: {downloadsPath}");
+                return;
+            }
+
+            var latestFile = directory.GetFiles(serachpattern)
+                                      .OrderByDescending(f => f.LastWriteTime)
+                                      .FirstOrDefault();
+
+            if (latestFile != null)
+            {
+                var newFilePath = Path.Combine(directory.FullName, newFileName);
+                latestFile.MoveTo(newFilePath);
+                Log($"Renamed file {latestFile.Name} to {newFileName}");
+            }
+            else
+            {
+                Log("No files found to rename.");
+            }
+        }
+
+
+
 
         public void OpenGroup(GroupLookupData lookup)
         {
@@ -104,7 +154,7 @@ namespace LoadConsentToGo
         static int frmTop = 500;
         static int frmLeft = 1000;
 
-        public void Process(C2GDownload smsdata, int cnt)
+        public void UploadStudent(C2GDownload smsdata, int cnt)
         {
             Log($"Process start: {smsdata?.FirstName} {smsdata?.LastName} Site:{smsdata?.SiteUniqueIdentifier} Count:{cnt}");
 
@@ -236,6 +286,78 @@ namespace LoadConsentToGo
                 Log("Member committed by user confirmation");
                 Console.Write("Member Committed");
             }
+
+            Log($"Process finished for {smsdata.FirstName} {smsdata.LastName}");
+        }
+
+        public void UploadStaffData(SystemUser smsdata, int cnt)
+        {
+            Log($"Process start: {smsdata?.FirstName} {smsdata?.LastName} Site:{smsdata?.SiteIdentifier} Count:{cnt}");
+
+            emailcounter++;
+            driver.Navigate().GoToUrl("https://www.mcbschools.com/School/SystemUsers");
+
+
+
+            Log($"CheckExists: Searching for {smsdata.FirstName} {smsdata.LastName} (count {cnt}) in {smsdata.Grouplookup?.FormationName}");
+
+            driver.FindElement(By.Id("txtSearch")).SendKeys(smsdata.LastName);
+
+            //var searchicon = driver.FindElement(By.CssSelector(".fa-search"));
+            //IJavaScriptExecutor executor = (IJavaScriptExecutor)driver;
+            //driver.ExecuteScript("SearchUsers()");
+
+            var rslt = MessageBox.Show($"Create {smsdata.FirstName} {smsdata.LastName} in {smsdata.Grouplookup?.FormationName}", "Create", MessageBoxButtons.YesNo);
+
+
+            if (rslt == DialogResult.Yes) 
+            {
+                driver.Navigate().GoToUrl("https://www.mcbschools.com/School/AddEditUsers");
+                Thread.Sleep(1000);
+                driver.FindElement(By.Id("txtFirstName")).SendKeys(smsdata.FirstName);
+                driver.FindElement(By.Id("txtLastName")).SendKeys(smsdata.LastName);
+                driver.FindElement(By.Id("txtEmail")).SendKeys(smsdata.Email);
+                driver.FindElement(By.Id("ddl_role")).SendKeys(smsdata.Role);
+                //driver.FindElement(By.Id("txtBirthDate")).SendKeys(smsdata.BirthDate);
+                //driver.FindElement(By.Id("txtRegistration")).SendKeys(smsdata.UniqueIdentifier);
+
+                driver.FindElement(By.Id("btnSave")).Click();
+
+            }
+            //    var alreadyexists = MessageBox.Show($"{cnt} Does {smsdata.FirstName} {smsdata.LastName} of {lookup.FormationName} already exist?", "Exists?", MessageBoxButtons.YesNo);
+            //Log($"CheckExists result: {(alreadyexists == DialogResult.Yes)}");
+            //return (alreadyexists == DialogResult.Yes)
+
+            driver.Navigate().GoToUrl("https://www.mcbschools.com/School/AddEditPlayer");
+            //Log("Navigated to AddEditPlayer form");
+
+            //driver.FindElement(By.Id("txtFirstName")).SendKeys(smsdata.FirstName);
+            //driver.FindElement(By.Id("txtLastName")).SendKeys(smsdata.LastName);
+            //driver.FindElement(By.Id("ddlTitle")).SendKeys(smsdata.Title);
+            //driver.FindElement(By.Id("txtBirthDate")).SendKeys(smsdata.BirthDate);
+            //driver.FindElement(By.Id("txtRegistration")).SendKeys(smsdata.UniqueIdentifier);
+
+
+            //driver.FindElement(By.Id("txtEmail")).SendKeys(email);
+            //Log($"Email set to {email}");
+
+            //driver.FindElement(By.Id("ddlSchoolYear")).SendKeys(smsdata.SchoolYear);
+
+            //driver.FindElement(By.Id("liAdditionalDetails")).Click();
+            //driver.FindElement(By.Id("txtGuardianName")).SendKeys(smsdata.Guardian1FirstName);
+            //driver.FindElement(By.Id("txtGuardianLastName")).SendKeys(smsdata.Guardian1LastName);
+            //if (!string.IsNullOrEmpty(smsdata.Guardian1Title)) driver.FindElement(By.Id("ddlGuardianTitle")).SendKeys(smsdata.Guardian1Title);
+            //driver.FindElement(By.Id("txtGuardianMobileNumber")).SendKeys(smsdata.Guardian1MobileNumber);
+            //driver.FindElement(By.Id("txtGuardianEmail")).SendKeys(smsdata.Guardian1Email);
+
+            //var commit = MessageBox.Show($"Ok to Commit {smsdata.FirstName} {smsdata.LastName} of {smsdata.Grouplookup.FormationName}", "Exists?", MessageBoxButtons.YesNo);
+
+            //if (commit == DialogResult.Yes)
+            //{
+            //    driver.FindElement(By.Id("btnSave")).Click();
+            //    Log("Member committed by user confirmation");
+            //    Console.Write("Member Committed");
+            //}
 
             Log($"Process finished for {smsdata.FirstName} {smsdata.LastName}");
         }

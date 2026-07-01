@@ -28,7 +28,19 @@ namespace LoadConsentToGo
 
         private void btnExcelToSqlLite_Click(object sender, EventArgs e)
         {
-            FormAction = "baseline";
+            FormAction = "student_data_to_db";
+            Close();
+        }
+
+        private void staff_data_upload_button_Click(object sender, EventArgs e)
+        {
+            FormAction = "staff_data_to_db";
+            Close();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            FormAction = "upload_systemuser_data";
             Close();
         }
     }
