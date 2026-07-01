@@ -1,6 +1,9 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-
+using System.Diagnostics;
+using System.Security.Policy;
+using static System.ComponentModel.Design.ObjectSelectorEditor;
+//using OpenQA.Selenium.DevTools.V145.Audits;
 
 namespace LoadConsentToGo
 {
@@ -153,7 +156,7 @@ namespace LoadConsentToGo
         static int frmTop = 500;
         static int frmLeft = 1000;
 
-        public void UploadStudent(StudentData smsdata, int cnt)
+        public void UploadStudent(C2GData smsdata, int cnt)
         {
             Log($"Process start: {smsdata?.FirstName} {smsdata?.LastName} Site:{smsdata?.SiteUniqueIdentifier} Count:{cnt}");
 
@@ -414,7 +417,7 @@ namespace LoadConsentToGo
             Log($"Process finished for {smsdata.FirstName} {smsdata.LastName}");
         }
 
-        public void CheckExists(StudentData smsdata, int cnt)
+        public void CheckExists(C2GData smsdata, int cnt)
         {
             Log($"CheckExists: Searching for {smsdata.FirstName} {smsdata.LastName} (count {cnt}) in {smsdata.Grouplookup?.FormationName}");
             driver.Navigate().GoToUrl("https://www.mcbschools.com/School/Player");
