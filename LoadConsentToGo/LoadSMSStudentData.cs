@@ -1,7 +1,7 @@
 ﻿
 namespace LoadConsentToGo
 {
-    internal class LoadSMSData
+    internal class LoadSMSStudentData
     {
         public static List<C2GData> Load()
         {

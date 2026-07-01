@@ -2,7 +2,7 @@
 
 namespace LoadConsentToGo
 {
-    internal class MergeExcelData
+    internal class MergeExcelStudentData
     {
         public static List<C2GData> Execute()
         {

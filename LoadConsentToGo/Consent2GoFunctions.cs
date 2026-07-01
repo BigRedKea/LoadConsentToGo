@@ -1,41 +1,61 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using System.Diagnostics;
+using System.Security.Policy;
+using static System.ComponentModel.Design.ObjectSelectorEditor;
+//using OpenQA.Selenium.DevTools.V145.Audits;
 
 namespace LoadConsentToGo
 {
     internal class Consent2GoFunctions
     {
-        private readonly ChromeDriver driver = new();
-        private int emailcounter = 0;
+        readonly ChromeDriver driver = new();
+        public int emailcounter = 0;
 
-        internal static string profilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).ToString();
+        public static string profilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).ToString();
 
-        internal static string consent2gopath = Path.Combine(profilePath, @"Scouts Queensland", "SO Admin - Consent2Go", "Automated Upload");
-        internal static string consent2gopathupload = Path.Combine(consent2gopath, "Uploads");
-        internal static string consent2gopathuploadlog = Path.Combine(consent2gopathupload, "Logs");
-        internal static string consent2gopathupdownloads = Path.Combine(consent2gopathupload, "Downloads");
+        public static string consent2gopath = Path.Combine(profilePath, @"Scouts Queensland", "SO Admin - Consent2Go", "Automated Upload");
+        public static string consent2gopathupload = Path.Combine(consent2gopath, "Uploads");
+        public static string consent2gopathuploadlog = Path.Combine(consent2gopathupload, "Logs");
+        public static string consent2gopathupdownloads = Path.Combine(consent2gopathupload, "Downloads");
 
+        private string LogFilePath = Path.Combine(consent2gopathuploadlog, $"consent2golog{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}.log");
         internal static string consent2gopathlookup = Path.Combine(consent2gopath, "Lookups");
         internal static string consent2gopathdatabase = Path.Combine(consent2gopath, "Database");
 
-        internal GroupLookupData? GroupName { get; private set; }
+        public GroupLookupData? GroupName { get; private set; }
 
-        internal Consent2GoFunctions()
+        public Consent2GoFunctions()
         {
             driver = new ChromeDriver();
-            Logging.Instance.Log("Consent2GoFunctions initialized");
+            Log("Consent2GoFunctions initialized");
         }
 
+        public void Log(string message)
+        {
+            try
+            {
+                var dir = Path.GetDirectoryName(LogFilePath);
+                if (!Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+                var entry = $"{DateTime.UtcNow:O} {message}{Environment.NewLine}";
+                File.AppendAllText(LogFilePath, entry);
+            }
+            catch
+            {
+                // Swallow logging errors so logging never breaks execution.
+            }
+        }
 
-        internal void Open()
+        public void Open()
         {
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
             driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
         }
 
-        internal void Login(string username, string password)
+        public void Login(string username, string password)
         {
-            Logging.Instance.Log($"Login start for user '{username}'");
+            Log($"Login start for user '{username}'");
             driver.Navigate().GoToUrl("https://www.mcbschools.com/Login");
 
             var loginBox = driver.FindElement(By.Name("username"));
@@ -47,11 +67,11 @@ namespace LoadConsentToGo
             driver.FindElement(By.Name("password")).SendKeys(password);
             submitButton.Click();
             Thread.Sleep(500);
-            Logging.Instance.Log("Login sequence completed");
+            Log("Login sequence completed");
         }
 
 
-        internal void DownloadGroupData(GroupLookupData lookup)
+        public void DownloadStudentGroupData(GroupLookupData lookup)
         {
             try
             {
@@ -66,44 +86,113 @@ namespace LoadConsentToGo
                 driver.FindElement(By.Id("btnSelectAllColumns")).Click();
                 Thread.Sleep(1000);
                 driver.FindElement(By.Id("btnReport_Player")).Click();
+                Thread.Sleep(1000);
+                RenameLatestFile("StudentList_*_UTC.xlsx", $"student_{lookup.FormationName}.xlsx");
             }
             catch (Exception ex)
             {
-                Logging.Instance.Log($"Exception {ex.Message}");
+                Log($"Exception {ex.Message}");
             }
         }
 
-        internal void OpenGroup(GroupLookupData lookup)
+        public void DownloadStaffGroupData(GroupLookupData lookup)
         {
-            var url = $"https://www.mcbschools.com/DuplicateIndex?Id={lookup.Consent2GoOrgId}";
-            driver.Navigate().GoToUrl(url);
-            Logging.Instance.Log($"Navigated to {url}");
-            Thread.Sleep(2000);
+            try
+            {
+                OpenGroup(lookup);
+                driver.Navigate().GoToUrl("https://www.mcbschools.com/School/SystemUsers");
+                driver.ExecuteScript("ExportToExcel()");
+                Thread.Sleep(2000);
+                RenameLatestFile("SystemUser*.xlsx", $"staff_{lookup.FormationName}.xlsx");
+            }
+            catch (Exception ex)
+            {
+                Log($"Exception {ex.Message}");
+            }
         }
 
-        internal static int frmTop = 500;
-        internal static int frmLeft = 1000;
 
-        internal void Process(C2GData smsdata, int cnt)
+        void RenameLatestFile(string serachpattern, string newFileName)
         {
-            if (smsdata == null)
+            string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string downloadsPath = Path.Combine(userProfile, "Downloads");
+
+            var directory = new DirectoryInfo(downloadsPath);
+            if (!Directory.Exists(downloadsPath))
             {
-                Logging.Instance.Log($"smsdata is null");
+                Log($"Downloads not located at: {downloadsPath}");
                 return;
             }
 
-            Logging.Instance.Log($"Process start: {smsdata?.FirstName} {smsdata?.LastName} Site:{smsdata?.SiteUniqueIdentifier} Count:{cnt}");
+            var latestFile = directory.GetFiles(serachpattern)
+                                      .OrderByDescending(f => f.LastWriteTime)
+                                      .FirstOrDefault();
+
+            if (latestFile != null)
+            {
+                var newFilePath = Path.Combine(directory.FullName, newFileName);
+                latestFile.MoveTo(newFilePath);
+                Log($"Renamed file {latestFile.Name} to {newFileName}");
+            }
+            else
+            {
+                Log("No files found to rename.");
+            }
+        }
+
+
+
+
+        public void OpenGroup(GroupLookupData lookup)
+        {
+
+
+            var url = $"https://www.mcbschools.com/DuplicateIndex?Id={lookup.Consent2GoOrgId}";
+            driver.Navigate().GoToUrl(url);
+            Log($"Navigated to {url}");
+            Thread.Sleep(2000);
+        }
+
+        static int frmTop = 500;
+        static int frmLeft = 1000;
+
+        public void UploadStudent(C2GDownload smsdata, int cnt)
+        {
+            Log($"Process start: {smsdata?.FirstName} {smsdata?.LastName} Site:{smsdata?.SiteUniqueIdentifier} Count:{cnt}");
 
             emailcounter++;
 
-            if (CheckExists(smsdata, cnt)) return;
+            CheckExists(smsdata, cnt);
 
-            //Otherwise add the record
+
+            //    var alreadyexists = MessageBox.Show($"{cnt} Does {smsdata.FirstName} {smsdata.LastName} of {lookup.FormationName} already exist?", "Exists?", MessageBoxButtons.YesNo);
+            //Log($"CheckExists result: {(alreadyexists == DialogResult.Yes)}");
+            //return (alreadyexists == DialogResult.Yes);
+            //{
+            Log($"CheckExists returned true for {smsdata.FirstName} {smsdata.LastName}");
+            var frm = new FormSMSData();
+            frm.LoadSMSData(smsdata);
+
+            // 1. Tell Windows Forms you want to set the coordinates manually
+            // frm.StartPosition = FormStartPosition.Manual;
+
+            // 2. Set the X and Y coordinates (in pixels) from the top-left of the screen
+            //frm.Location = new Point(3000, 600);
+            frm.Top = frmTop;
+            frm.Left = frmLeft;
+
+            var rslt = frm.ShowDialog();
+
+            frmTop = frm.Top;
+            frmLeft = frm.Left;
+
+            if (rslt == DialogResult.OK) return;
+            //}
 
             Thread.Sleep(2000);
 
             driver.Navigate().GoToUrl("https://www.mcbschools.com/School/AddEditPlayer");
-            Logging.Instance.Log("Navigated to AddEditPlayer form");
+            Log("Navigated to AddEditPlayer form");
 
             driver.FindElement(By.Id("txtFirstName")).SendKeys(smsdata.FirstName);
             driver.FindElement(By.Id("txtLastName")).SendKeys(smsdata.LastName);
@@ -168,7 +257,7 @@ namespace LoadConsentToGo
             }
 
             driver.FindElement(By.Id("txtEmail")).SendKeys(email);
-            Logging.Instance.Log($"Email set to {email}");
+            Log($"Email set to {email}");
 
             driver.FindElement(By.Id("ddlSchoolYear")).SendKeys(smsdata.SchoolYear);
 
@@ -191,74 +280,154 @@ namespace LoadConsentToGo
             driver.FindElement(By.Id("txtGuardianMobileNumber")).SendKeys(smsdata.Guardian1MobileNumber);
             driver.FindElement(By.Id("txtGuardianEmail")).SendKeys(smsdata.Guardian1Email);
 
-            var commit = MessageBox.Show($"Ok to Commit {smsdata.FirstName} {smsdata.LastName} of {smsdata?.Grouplookup?.FormationName}", "Exists?", MessageBoxButtons.YesNo);
+            var commit = MessageBox.Show($"Ok to Commit {smsdata.FirstName} {smsdata.LastName} of {smsdata.Grouplookup.FormationName}", "Exists?", MessageBoxButtons.YesNo);
 
             if (commit == DialogResult.Yes)
             {
                 driver.FindElement(By.Id("btnSave")).Click();
-                Logging.Instance.Log("Member committed by user confirmation");
+                Log("Member committed by user confirmation");
                 Console.Write("Member Committed");
             }
 
-            Logging.Instance.Log($"Process finished for {smsdata?.FirstName} {smsdata?.LastName}");
+            Log($"Process finished for {smsdata.FirstName} {smsdata.LastName}");
         }
 
-        internal bool CheckExists(C2GData smsdata, int cnt)
+        public void UploadStaffData(SystemUser smsdata, int cnt)
         {
-            Logging.Instance.Log($"CheckExists: Searching for {smsdata.FirstName} {smsdata.LastName} (count {cnt}) in {smsdata.Grouplookup?.FormationName}");
+            Log($"Process start: {smsdata?.FirstName} {smsdata?.LastName} Site:{smsdata?.SiteIdentifier} Count:{cnt}");
 
+            emailcounter++;
+
+
+            string role = "";
+            switch (smsdata.Role)
+            {
+                //Activity Leader
+                //Adult Supporter
+                //Adult Supporter(Caretaker)
+                //Adult Supporter(Chair)
+                //Adult Supporter(Chairman)
+                //Adult Supporter(Committee)
+                //Adult Supporter(Secretary)
+                //Adult Supporter(Treasurer)
+                //Branch Commissioner(Environment and Sustainability)
+
+                //District Leader(Joey Scouts)
+                //Region Activity Leader(Activities)
+                //Region Leader
+                //Rover Scout
+                //Member - Scout Fellowship
+
+
+                //SMS Access(Training Team)
+                //Staff(SO)
+
+                //Team Supporter
+
+
+                //case "Assistant Region Commissioner(Rover Scout Adviser)":
+
+                //case "Team Member":
+
+
+                case "Cub Scout Section":
+                case "Assistant Cub Scout Leader":
+                case "Cub Scout Leader":
+                    role = "Cub Scout Section";
+                    break;
+
+                case "Full System Administration":
+                    role = "Full System Administration";
+                    break;
+
+                case "Group Committee / Other Adults":
+                    role = "Group Committee / Other Adults";
+                    break;
+
+                case "Assistant Group Leader":
+                case "Group Leader":
+                case "Group Leader / LIC":
+                    role = "Group Leader / LIC";
+                    break;
+
+                case "Assistant Joey Scout Leader":
+                case "Joey Scout Leader":
+                case "Joey Scout Section":
+                    role = "Joey Scout Section";
+                    break;
+
+                case "Rover Scout Section":
+                    role = "Rover Scout Section";
+                    break;
+
+                case "Assistant Scout Leader":
+                case "Scout Leader":
+                case "Scout Section":
+                    role = "Scout Section";
+                    break;
+
+                case "Assistant Venturer Scout Leader":
+                case "Venturer Scout Leader":
+                case "Venturer Scout Section":
+                    role = "Venturer Scout Section";
+                    break;
+
+                default:
+                    Log($"{smsdata.Role} not found");
+                    break;
+
+            }
+
+            if (!string.IsNullOrEmpty(role))
+            {
+                driver.Navigate().GoToUrl("https://www.mcbschools.com/School/SystemUsers");
+
+                Log($"CheckExists: Searching for {smsdata.FirstName} {smsdata.LastName} (count {cnt}) in {smsdata.Grouplookup?.FormationName}");
+
+                driver.FindElement(By.Id("txtSearch")).SendKeys(smsdata.LastName);
+                Thread.Sleep(1000);
+
+                var rslt = MessageBox.Show($"Create {smsdata.FirstName} {smsdata.LastName} in {smsdata.Grouplookup?.FormationName}", "Create", MessageBoxButtons.YesNo);
+
+                if (rslt == DialogResult.Yes)
+                {
+                    //var searchicon = driver.FindElement(By.CssSelector(".fa-search"));
+                    //IJavaScriptExecutor executor = (IJavaScriptExecutor)driver;
+                    //driver.ExecuteScript("SearchUsers()");
+                    Thread.Sleep(1000);
+
+
+                    driver.Navigate().GoToUrl("https://www.mcbschools.com/School/AddEditUsers");
+                    Thread.Sleep(1000);
+                    driver.FindElement(By.Id("txtFirstName")).SendKeys(smsdata.FirstName);
+                    driver.FindElement(By.Id("txtLastName")).SendKeys(smsdata.LastName);
+                    driver.FindElement(By.Id("txtEmail")).SendKeys(smsdata.Email);
+                    driver.FindElement(By.Id("ddl_role")).SendKeys(role);
+
+                    var rslt2 = MessageBox.Show($"Save {smsdata.FirstName} {smsdata.LastName} in {smsdata.Grouplookup?.FormationName}", "Create", MessageBoxButtons.YesNo);
+
+                    if (rslt2 == DialogResult.Yes)
+                    {
+                        driver.FindElement(By.Id("btnSave")).Click();
+                    }
+
+                }
+
+            }
+            Log($"Process finished for {smsdata.FirstName} {smsdata.LastName}");
+        }
+
+        public void CheckExists(C2GDownload smsdata, int cnt)
+        {
+            Log($"CheckExists: Searching for {smsdata.FirstName} {smsdata.LastName} (count {cnt}) in {smsdata.Grouplookup?.FormationName}");
             driver.Navigate().GoToUrl("https://www.mcbschools.com/School/Player");
+
             driver.FindElement(By.Id("txtSearch")).SendKeys(smsdata.LastName);
 
             var searchicon = driver.FindElement(By.CssSelector(".fa-search"));
             IJavaScriptExecutor executor = (IJavaScriptExecutor)driver;
             executor.ExecuteScript("arguments[0].click();", searchicon);
-            Logging.Instance.Log("Search icon clicked");
-
-            var frm = new FormSMSData();
-            frm.LoadSMSData(smsdata);
-
-            frm.StartPosition = FormStartPosition.Manual;
-            frm.Location = new Point(frmLeft, frmTop);
-            var rslt = frm.ShowDialog();
-
-            frmTop = frm.Top;
-            frmLeft = frm.Left;
-
-            return rslt == DialogResult.Yes;
-        }
-
-
-        internal void LoadConsentToGo(List<C2GData> datatoload)
-        {
-            var grpbysmsdata = datatoload.GroupBy(x => x.SiteUniqueIdentifier);
-
-            int cnt = 0;
-            foreach (var formationdata in grpbysmsdata)
-            {
-                var formationlookup = formationdata.FirstOrDefault()?.Grouplookup;
-                if (formationlookup != null)
-                {
-                    Logging.Instance.Log($"{formationlookup.FormationName}");
-                    OpenGroup(formationlookup);
-
-                    foreach (var item in formationdata.OrderBy(x => x.LastName))
-                    {
-                        try
-                        {
-                            cnt++;
-                            Logging.Instance.Log($"Processing {cnt}/ {datatoload.Count} {item}");
-                            Process(item, cnt);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logging.Instance.Log(ex.ToString(), true);
-                        }
-                    }
-
-                    DownloadGroupData(formationlookup);
-                }
-            }
+            Log("Search icon clicked");
         }
     }
 }
