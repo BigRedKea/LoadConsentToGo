@@ -62,11 +62,11 @@ namespace LoadConsentToGo
             loginBox.SendKeys(username);
             var submitButton = driver.FindElement(By.ClassName("amplify-button"));
             submitButton.Click();
-            Thread.Sleep(500);
+            Thread.Sleep(2000);
 
             driver.FindElement(By.Name("password")).SendKeys(password);
             submitButton.Click();
-            Thread.Sleep(500);
+            Thread.Sleep(2000);
             Log("Login sequence completed");
         }
 
@@ -298,87 +298,7 @@ namespace LoadConsentToGo
 
             emailcounter++;
 
-
-            string role = "";
-            switch (smsdata.Role)
-            {
-                //Activity Leader
-                //Adult Supporter
-                //Adult Supporter(Caretaker)
-                //Adult Supporter(Chair)
-                //Adult Supporter(Chairman)
-                //Adult Supporter(Committee)
-                //Adult Supporter(Secretary)
-                //Adult Supporter(Treasurer)
-                //Branch Commissioner(Environment and Sustainability)
-
-                //District Leader(Joey Scouts)
-                //Region Activity Leader(Activities)
-                //Region Leader
-                //Rover Scout
-                //Member - Scout Fellowship
-
-
-                //SMS Access(Training Team)
-                //Staff(SO)
-
-                //Team Supporter
-
-
-                //case "Assistant Region Commissioner(Rover Scout Adviser)":
-
-                //case "Team Member":
-
-
-                case "Cub Scout Section":
-                case "Assistant Cub Scout Leader":
-                case "Cub Scout Leader":
-                    role = "Cub Scout Section";
-                    break;
-
-                case "Full System Administration":
-                    role = "Full System Administration";
-                    break;
-
-                case "Group Committee / Other Adults":
-                    role = "Group Committee / Other Adults";
-                    break;
-
-                case "Assistant Group Leader":
-                case "Group Leader":
-                case "Group Leader / LIC":
-                    role = "Group Leader / LIC";
-                    break;
-
-                case "Assistant Joey Scout Leader":
-                case "Joey Scout Leader":
-                case "Joey Scout Section":
-                    role = "Joey Scout Section";
-                    break;
-
-                case "Rover Scout Section":
-                    role = "Rover Scout Section";
-                    break;
-
-                case "Assistant Scout Leader":
-                case "Scout Leader":
-                case "Scout Section":
-                    role = "Scout Section";
-                    break;
-
-                case "Assistant Venturer Scout Leader":
-                case "Venturer Scout Leader":
-                case "Venturer Scout Section":
-                    role = "Venturer Scout Section";
-                    break;
-
-                default:
-                    Log($"{smsdata.Role} not found");
-                    break;
-
-            }
-
-            if (!string.IsNullOrEmpty(role))
+            if (!string.IsNullOrEmpty(smsdata?.consent2gorole))
             {
                 driver.Navigate().GoToUrl("https://www.mcbschools.com/School/SystemUsers");
 
@@ -402,7 +322,7 @@ namespace LoadConsentToGo
                     driver.FindElement(By.Id("txtFirstName")).SendKeys(smsdata.FirstName);
                     driver.FindElement(By.Id("txtLastName")).SendKeys(smsdata.LastName);
                     driver.FindElement(By.Id("txtEmail")).SendKeys(smsdata.Email);
-                    driver.FindElement(By.Id("ddl_role")).SendKeys(role);
+                    driver.FindElement(By.Id("ddl_role")).SendKeys(smsdata?.consent2gorole);
 
                     var rslt2 = MessageBox.Show($"Save {smsdata.FirstName} {smsdata.LastName} in {smsdata.Grouplookup?.FormationName}", "Create", MessageBoxButtons.YesNo);
 

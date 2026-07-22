@@ -226,7 +226,8 @@ namespace LoadConsentToGo
 
         static void UploadConsentToGoSystemUser(List<SystemUser> datatoload)
         {
-            var grpbysmsdata = datatoload.GroupBy(x => x.SiteIdentifier);
+            var leaders = datatoload.Where(x => !string.IsNullOrEmpty(x.consent2gorole)).ToList();
+            var grpbysmsdata = leaders.GroupBy(x => x.SiteIdentifier);
 
             int cnt = 0;
             foreach (var formationdata in grpbysmsdata)
@@ -242,7 +243,7 @@ namespace LoadConsentToGo
                         try
                         {
                             cnt++;
-                            Console.WriteLine($"Processing {cnt}/ {datatoload.Count} {item}");
+                            Console.WriteLine($"Processing {cnt}/ {leaders.Count} {item}");
                             c.UploadStaffData(item, cnt);
                         }
                         catch (Exception ex)

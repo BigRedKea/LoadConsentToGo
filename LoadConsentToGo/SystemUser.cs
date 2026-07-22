@@ -4,6 +4,8 @@ namespace LoadConsentToGo
 {
     internal class SystemUser
     {
+        internal string consent2gorole;
+
         [ColumnName("FirstName")]
         public string? FirstName { get; set; }
 

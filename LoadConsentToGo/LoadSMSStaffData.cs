@@ -29,6 +29,84 @@ namespace LoadConsentToGo
                 systemuser.Role = Clean(fields[3]);
                 if (i == 0 && systemuser.Role != "userrole") throw new Exception($"{systemuser.Role} != 'userrole'");
 
+
+                switch (systemuser.Role)
+                {
+                    //Activity Leader
+                    //Adult Supporter
+                    //Adult Supporter(Caretaker)
+                    //Adult Supporter(Chair)
+                    //Adult Supporter(Chairman)
+                    //Adult Supporter(Committee)
+                    //Adult Supporter(Secretary)
+                    //Adult Supporter(Treasurer)
+                    //Branch Commissioner(Environment and Sustainability)
+
+                    //District Leader(Joey Scouts)
+                    //Region Activity Leader(Activities)
+                    //Region Leader
+                    //Rover Scout
+                    //Member - Scout Fellowship
+
+
+                    //SMS Access(Training Team)
+                    //Staff(SO)
+
+                    //Team Supporter
+
+
+                    //case "Assistant Region Commissioner(Rover Scout Adviser)":
+
+                    //case "Team Member":
+
+
+                    case "Cub Scout Section":
+                    case "Assistant Cub Scout Leader":
+                    case "Cub Scout Leader":
+                        systemuser.consent2gorole = "Cub Scout Section";
+                        break;
+
+                    case "Full System Administration":
+                        systemuser.consent2gorole = "Full System Administration";
+                        break;
+
+                    case "Group Committee / Other Adults":
+                        systemuser.consent2gorole = "Group Committee / Other Adults";
+                        break;
+
+                    case "Assistant Group Leader":
+                    case "Group Leader":
+                    case "Group Leader / LIC":
+                        systemuser.consent2gorole = "Group Leader / LIC";
+                        break;
+
+                    case "Assistant Joey Scout Leader":
+                    case "Joey Scout Leader":
+                    case "Joey Scout Section":
+                        systemuser.consent2gorole = "Joey Scout Section";
+                        break;
+
+                    case "Rover Scout Section":
+                        systemuser.consent2gorole = "Rover Scout Section";
+                        break;
+
+                    case "Assistant Scout Leader":
+                    case "Scout Leader":
+                    case "Scout Section":
+                        systemuser.consent2gorole = "Scout Section";
+                        break;
+
+                    case "Assistant Venturer Scout Leader":
+                    case "Venturer Scout Leader":
+                    case "Venturer Scout Section":
+                        systemuser.consent2gorole = "Venturer Scout Section";
+                        break;
+
+                    default:
+                        break;
+
+                }
+
                 systemuser.SiteIdentifier = Clean(fields[4]);
                 if (i == 0 && systemuser.SiteIdentifier != "site_unique_identifier") throw new Exception($"{systemuser.SiteIdentifier} != 'site_unique_identifier'");
                 
