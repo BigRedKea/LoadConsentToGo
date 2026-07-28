@@ -8,17 +8,26 @@ LoadConsentToGo is a Windows Forms utility for moving SMS data between Excel/CSV
    - Copy the example secrets file to Secrets.json and update the Consent2Go credentials.
    - Ensure GroupLookup.json contains the mapping between SMS identifiers and Consent2Go groups.
 
-2. Import student Excel data into SQLite
-   - Run the student import action to merge student spreadsheet data into the local consent2go.db database.
+2. Download student data from SMS into CSV files using the reporting functionality in SMS
+
+3. Run the Upload Student
+    - It will open consent2Go webpage using selenium and will 
+        - Open each group
+        - Check against a SQL lite database to see if the member (number) has already been loaded in another pass.
+        - Check for existing Surnames
+        - Ask if a new record is to be inserted or skiped
+        - Pause after creating the email (sometimes the web page will reject the code) to allow corrrection
+        - Check if ok to commit
+        - If the person has been added manually the Member number may not be loaded. This can be manually added
+        - After each group is loaded it will automatically download all the data for the group to your download folder. Copy these across to a download folder ready for loading into a SqlLite instance
+
+4. Cache the download from consentToGo into a local database
+   - Run the student upload action to merge student spreadsheet data into the local consent2go.db database.
    - This step creates the baseline records used by later uploads.
 
-3. Download and import staff data
-   - Download staff records from Consent2Go for the configured groups.
-   - Import the staff spreadsheet data into SQLite so it is available for later processing.
 
-4. Upload the prepared data back to Consent2Go
-   - Choose the CSV export to upload and send the prepared student or system-user records back to Consent2Go.
-   - The app will process the data in groups and report progress in the console.
+3. Download and import staff data
+   - Follow a similar process for loading staff into consent to go.
 
 ## Build
 
@@ -38,7 +47,7 @@ dotnet run --project LoadConsentToGo.csproj
 
 ## Known issues
 
-- Consent2Go may reject or behave unexpectedly when the same email address is used more than once in a batch upload. This is a known integration issue.
+- Consent2Go may reject an application when the same email address is used more than once in a batch upload. This is a known integration issue. The current fix is the code will pause for a manual check... Add an additional charactor before proceeding.
 
 ## Notes
 
