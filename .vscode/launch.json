@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch LoadConsentToGo",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/LoadConsentToGo/bin/Debug/net8.0-windows/LoadConsentToGo.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}/LoadConsentToGo",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        }
+    ]
+}

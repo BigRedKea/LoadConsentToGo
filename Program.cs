@@ -15,12 +15,14 @@ namespace LoadConsentToGo
 
         static void Main()
         {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
+            // Initialize the Windows Forms runtime before showing the main window.
             ApplicationConfiguration.Initialize();
 
+            // Display the main form so the user can select the workflow to run.
             var frmMain = new FormMain();
             frmMain.ShowDialog();
+
+            // Execute the selected workflow step after the form closes.
             Process(frmMain.FormAction);
         }
 
@@ -67,6 +69,7 @@ namespace LoadConsentToGo
 
             switch (action)
             {
+                // Step 1: Load student Excel data into the local SQLite database.
                 case "student_data_to_db":
                     {
                         var mergeddata = MergeExcelStudentData.Execute();
@@ -75,6 +78,7 @@ namespace LoadConsentToGo
                         break;
                     }
 
+                // Step 2: Download staff data from Consent2Go for each configured group.
                 case "download staff data":
                     {
                         c.Open();
@@ -87,6 +91,7 @@ namespace LoadConsentToGo
                     }
                     break;
 
+                // Step 3: Load staff Excel data into the SQLite database.
                 case "staff_data_to_db":
                     {
                         var mergeddata = MergeExcelSystemUserData.Execute();
@@ -95,7 +100,7 @@ namespace LoadConsentToGo
                         break;
                     }
 
-
+                // Step 4: Upload prepared system-user records back to Consent2Go.
                 case "upload_systemuser_data":
                     {
                         var baselinedata = sqlLiteWrapperSystemUser.GetData();
