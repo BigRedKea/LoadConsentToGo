@@ -156,30 +156,62 @@ namespace LoadConsentToGo
         static int frmTop = 500;
         static int frmLeft = 1000;
 
+        bool HasMissingFields(StudentData smsdata)
+        {
+            var missingFields = new List<string>();
+            if (string.IsNullOrWhiteSpace(smsdata.Grouplookup?.FormationName)) missingFields.Add("Group");
+            if (string.IsNullOrWhiteSpace(smsdata.FirstName)) missingFields.Add("First Name");
+            if (string.IsNullOrWhiteSpace(smsdata.LastName)) missingFields.Add("Last Name");
+            if (string.IsNullOrWhiteSpace(smsdata.Title)) missingFields.Add("Title");
+            if (string.IsNullOrWhiteSpace(smsdata.BirthDate)) missingFields.Add("BirthDate");
+            if (string.IsNullOrWhiteSpace(smsdata.SchoolYear)) missingFields.Add("SchoolYear");
+            if (string.IsNullOrWhiteSpace(smsdata.UniqueIdentifier)) missingFields.Add("UniqueId");
+            if (string.IsNullOrWhiteSpace(smsdata.Guardian1FirstName)) missingFields.Add("Guardian1FirstName");
+            if (string.IsNullOrWhiteSpace(smsdata.Guardian1LastName)) missingFields.Add("Guardian1LastName");
+            if (string.IsNullOrWhiteSpace(smsdata.Guardian1MobileNumber)) missingFields.Add("Guardian1MobileNumber");
+            if (string.IsNullOrWhiteSpace(smsdata.Guardian1Email)) missingFields.Add("Guardian1Email");
+
+            if (missingFields.Count == 0) return false;
+
+            var memberName = $"{smsdata.FirstName} {smsdata.LastName}".Trim();
+            if (string.IsNullOrWhiteSpace(memberName)) memberName = "(no name)";
+            var memberNumber = string.IsNullOrWhiteSpace(smsdata.UniqueIdentifier) ? "(no id)" : smsdata.UniqueIdentifier;
+
+            Log($"Missing field(s) for {memberName} ({memberNumber}): {string.Join(", ", missingFields)}");
+            MessageBox.Show(
+                $"{memberName} ({memberNumber}) is missing the following field(s):{Environment.NewLine}{string.Join(Environment.NewLine, missingFields)}",
+                "Missing Fields",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning);
+            return true;
+        }
+
         public void UploadStudent(StudentData smsdata, int cnt)
         {
             Log($"Process start: {smsdata?.FirstName} {smsdata?.LastName} Site:{smsdata?.SiteUniqueIdentifier} Count:{cnt}");
 
             emailcounter++;
 
+            if (HasMissingFields(smsdata)) return;
+
             CheckExists(smsdata, cnt);
 
 
-            //    var alreadyexists = MessageBox.Show($"{cnt} Does {smsdata.FirstName} {smsdata.LastName} of {lookup.FormationName} already exist?", "Exists?", MessageBoxButtons.YesNo);
-            //Log($"CheckExists result: {(alreadyexists == DialogResult.Yes)}");
-            //return (alreadyexists == DialogResult.Yes);
-            //{
+
             Log($"CheckExists returned true for {smsdata.FirstName} {smsdata.LastName}");
             var frm = new FormSMSData();
             frm.LoadSMSData(smsdata);
 
-            // 1. Tell Windows Forms you want to set the coordinates manually
-            // frm.StartPosition = FormStartPosition.Manual;
+            // Tell Windows Forms you want to set the coordinates manually
+            frm.StartPosition = FormStartPosition.Manual;
 
-            // 2. Set the X and Y coordinates (in pixels) from the top-left of the screen
-            //frm.Location = new Point(3000, 600);
+            // Set the X and Y coordinates (in pixels) from the top-left of the screen
             frm.Top = frmTop;
             frm.Left = frmLeft;
+
+            // The Selenium-driven Chrome window is typically focused at this point,
+            // so force the confirmation dialog to the front instead of opening behind it.
+            frm.TopMost = true;
 
             var rslt = frm.ShowDialog();
 

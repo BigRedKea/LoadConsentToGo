@@ -37,7 +37,6 @@ namespace LoadConsentToGo
 
         private void ButtonCreate_Click(object sender, EventArgs e)
         {
-            // Create
             DialogResult = DialogResult.Yes;
             Close();
         }
